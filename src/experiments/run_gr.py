@@ -77,7 +77,7 @@ def test(model, loader, device="cpu", y_idx=0):
     )  # Introduce norm factors
 
 
-# Treat every target separately. So you're effectively training 13 times.
+# Treat every target separately. So you're effectively training 13 times. <- their note not mine
 
 
 def run_model_gr(
@@ -90,7 +90,7 @@ def run_model_gr(
     epochs=300,
     neptune_client=None,
     device="cpu",
-    nb_reruns=5,
+    nb_reruns=5, # number of repeats
     specific_task=-1,
 ):
     loss_fun = torch.nn.MSELoss(

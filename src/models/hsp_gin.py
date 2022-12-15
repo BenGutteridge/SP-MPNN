@@ -259,7 +259,7 @@ class NetHSP_GIN(torch.nn.Module):
 
         if self.residual_freq > 0:
             last_state_list = [x_feat]  # If skip connections are being used
-        for idx, value in enumerate(zip(self.hsp_modules, self.linear_modules)):
+        for idx, value in enumerate(zip(self.hsp_modules, self.linear_modules)): # each layer
             hsp_layer, linear_layer = value
             if (
                 self.inside_aggr == "edgesum"
@@ -284,7 +284,7 @@ class NetHSP_GIN(torch.nn.Module):
                     edge_attr = data.edge_attr.to(self.device)
             else:
                 edge_embeddings = None
-            x_feat = hsp_layer(
+            x_feat = hsp_layer( # ************************************************************ IMPORTANT BIT: goes through all the layers
                 node_embeddings=x_feat,
                 edge_index=edge_index,
                 edge_weights=edge_weights,

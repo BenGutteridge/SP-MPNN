@@ -108,10 +108,20 @@ parser.add_argument(
 )
 
 ####
-arg = "-d QM9 -m SP_RSUM_WEIGHT --max_distance 5 --num_layers 8 --specific_task 5 --mode gr --epochs 1"
+my_args = [
+    "-d QM9",
+    "-m SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
+    "--max_distance 5",     # K, I think
+    "--num_layers 8",
+    "--specific_task 5",    # index for the regression target (0-12 for QM9) 
+    "--mode gr",            # graph regression (QM9 only)
+    "--epochs 1",
+    "--batch_size 128",
+    "--nb_reruns 1",        # number of times to repeat the experiment
+]
+my_args = ' '.join(my_args)
 ####
-
-args = parser.parse_args(arg.split())
+args = parser.parse_args(my_args.split())
 
 # Add arguments to neptune
 if neptune_client:
@@ -120,6 +130,7 @@ if neptune_client:
 
 BATCH = args.batch_size
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print('Device: ', device)
 root_dir = osp.join(osp.dirname(osp.realpath(__file__)), "..")
 
 

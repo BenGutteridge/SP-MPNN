@@ -175,8 +175,8 @@ class GIN_HSP_Layer(torch.nn.Module):
 
         self.outside_aggr = outside_aggr
         if outside_aggr in ["weight", "eps_weight"]:
-            self.hop_coef = torch.nn.Parameter(
-                torch.randn(self.max_distance).to(device), requires_grad=True
+            self.hop_coef = torch.nn.Parameter( # ************************ the alpha_k weights for each k-hop (shared MLP_h) ***************
+                torch.randn(self.max_distance).to(device), requires_grad=True 
             )
             if outside_aggr == "eps_weight":
                 self.eps = torch.nn.Parameter(
@@ -187,17 +187,17 @@ class GIN_HSP_Layer(torch.nn.Module):
         self,
         node_embeddings,
         edge_index,
-        edge_weights,
-        batch=None,
+        edge_weights, # shortest path length??
+        batch=None, # indices for which nodes belong to which graph
         edge_attr=None,
-        direct_edge_embs=None,
+        direct_edge_embs=None, # none for QM9, R_SPN -- used for OGB only (see below)
     ):
         """
         :param node_embeddings: A FloatTensor of shape [N, In_dim]
         :param edge_index: A LongTensor of shape [2, #Edges]
         :param edge_weights: The weights by SP_length
         :param batch: The batch size
-        :param edge_attr: (For multi-relational graphs) The edge types for
+        :param edge_attr: (For multi-relational graphs [B: graphs with edge types]) The edge types for [B: unfinished]
         :param direct_edge_embs: (For OGBG datasets), edge attributes that are summed with node attributes
         (then passed through ReLU).
         :return: A forward propagation of the input through the HSP layer
@@ -300,34 +300,34 @@ class GIN_HSP_Layer(torch.nn.Module):
             else:
                 raise AttributeError("Edge Embeddings not provided")
 
-        elif self.inside_aggr == "rsum":
+        elif self.inside_aggr == "rsum": # ************************* R-SPN on QM9 *************************
             assert edge_attr is not None
             by_hop_aggregates = torch.zeros(
                 size=(self.max_distance, nb_nodes, self.in_channels), dtype=torch.float
             ).to(
                 self.device
             )  # A [K, N, I] tensor
-            # First step: k=1...
+            # First step: k=1... [B: sums over the R edge types for k=1, accumulating in by_hop_aggregates[0]]
             for t in range(self.nb_edge_types):
-                edges_direct_t = edge_index.T[
-                    torch.logical_and(edge_weights == 1, edge_attr == t)
-                ].T
-                if edges_direct_t.numel() != 0:
+                edges_direct_t = edge_index.T[ # EDGE_WEIGHTS: num hops (0 for self-loop), EDGE_ATTR: edge type (0 is both an edge type and the default for k!=1 edges)
+                    torch.logical_and(edge_weights == 1, edge_attr == t) # extracts the *1-hop* edges of type t (is ~98% of the edges)
+                ].T 
+                if edges_direct_t.numel() != 0: # if there are 1-hop edges of the specified type
                     values = torch.ones(edges_direct_t.shape[1], dtype=torch.float).to(
                         self.device
                     )
-                    transformed_node_emb = self.rel_mlps[t](node_embeddings)
-                    sparse_adjacency_t = torch.sparse_coo_tensor(
+                    transformed_node_emb = self.rel_mlps[t](node_embeddings) # applies Rel- MLP
+                    sparse_adjacency_t = torch.sparse_coo_tensor( # looks like a matrix of all 1s but .dense() shows it is just the adj matrix made from edges_direct_t
                         edges_direct_t, values, (nb_nodes, nb_nodes)
                     )
-                    by_hop_aggregates[0, :, :] += torch.sparse.mm(
-                        sparse_adjacency_t, transformed_node_emb
+                    by_hop_aggregates[0, :, :] += torch.sparse.mm( # kth hop aggregation is in by_hop_aggregates[k-1]. 0-hop (self loop) not in by_hop_aggregates 
+                        sparse_adjacency_t, transformed_node_emb # SUM{h_j}
                     )  # Add
             # Second step: k>=2, just like before
             indirect_transform_node_emb = self.higher_hop_mlp(
-                node_embeddings
+                node_embeddings # ****************** THE MLP_h(h_v) -- k-hop, which will be repeated with different alpha weights *******************
             )  # These are the transf representations
-            for d in range(2, self.max_distance + 1):
+            for d in range(2, self.max_distance + 1): #### delay version will edit this to vary with t
                 edges = edge_index.T[edge_weights == d].T  # Fetch the edges
                 if edges.numel() != 0:
                     values = torch.ones(edges.shape[1], dtype=torch.float).to(
@@ -378,7 +378,7 @@ class GIN_HSP_Layer(torch.nn.Module):
 
         if self.outside_aggr in ["eps_weight", "weight"]:
             overall_hop_aggr = (
-                (by_hop_aggregates.T * F.softmax(self.hop_coef, dim=0))
+                (by_hop_aggregates.T * F.softmax(self.hop_coef, dim=0)) # *** performs the alpha weighted convex combination of the k-hop aggregations ***
                 .T.sum(axis=0)
                 .to(self.device)
             )
@@ -387,14 +387,14 @@ class GIN_HSP_Layer(torch.nn.Module):
                 self.device
             )  # overall_hop_aggr is [N, In]
 
-        if self.inside_aggr != "rsum":  # Standard GIN
+        if self.inside_aggr != "rsum":  # Standard GIN [B: their comment. Standard GIN in the sense that there is an MLP (gin_mlp) over the sum of the self-loop and the k-hop aggregations rather than just over the self-loop]
             out_embeddings = self.gin_mlp(
-                (self.eps + 1) * node_embeddings.to(self.device) + overall_hop_aggr
+                (self.eps + 1) * node_embeddings.to(self.device) + overall_hop_aggr # last bit of layer: MLP((1+eps)*[self_loops] + [all-hop-aggs])
             )
         else:  # No overall MLP, just a non-linearity (sigmoid, following GNN-FiLM equation)
             out_embeddings = (self.eps + 1) * self.loop_mlp(node_embeddings).to(
                 self.device
-            ) + overall_hop_aggr
+            ) + overall_hop_aggr # MLP here over self loops only, not sum of self and k-hop aggs
 
         return out_embeddings
 
