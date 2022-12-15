@@ -113,9 +113,10 @@ if neptune_client:
 
 BATCH = args.batch_size
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print('Device: ', device)
 root_dir = osp.join(osp.dirname(osp.realpath(__file__)), "..")
 
+print('ARGS:\n', args)
+print('Device: ', device)
 
 if args.mode == "gc":  # Graph Classification
     dataset, second_return, ogb_metric = get_dataset(args, root_dir)
