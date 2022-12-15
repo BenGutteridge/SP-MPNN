@@ -145,7 +145,7 @@ def get_dataset(args, root_dir):
             dataset_path, "test", transform_class.transform, qm9_proc_root
         )
         num_feat = 15
-        num_pred = 13  # Class here really is used in the sense of
+        num_pred = 13  # Class here really is used in the sense of # BEN: sentence just stops here. wut
         return tr_graphs, val_graphs, tst_graphs, num_feat, num_pred
     elif args.dataset.endswith("Prox"):
         dataset_path = osp.join(root_dir, "data", "Prox", args.dataset)

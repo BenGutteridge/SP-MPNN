@@ -74,10 +74,10 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
 
     inside, outside = args.model.lower().split("-")[1:3]
 
-    if not inside in ["attn_nh", "global_attn_nh", "sum", "rsum", "edgesum"]:
+    if not inside in ["attn_nh", "global_attn_nh", "sum", "rsum", "edgesum"]: # TODO what do these mean?
         raise ValueError("Invalid inside model aggregation.")
 
-    if not outside in ["sum", "weight", "eps_weight"]:
+    if not outside in ["sum", "weight", "eps_weight"]: # TODO what do these mean?
         raise ValueError("Invalid outside model aggregation.")
 
     emb_sizes = [args.emb_dim] * (args.num_layers + 1)
@@ -86,10 +86,10 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
     else:
         ogb_gc = None
 
-    model = NetHSP_GIN(
+    model = NetHSP_GIN( # generic model with all of their own stuff implemented in it
         num_features,
         num_classes,
-        emb_sizes=emb_sizes,
+        emb_sizes=emb_sizes, # list of length n_layers+1 with hidden dims I think
         device=device,
         max_distance=args.max_distance,
         scatter=args.scatter,

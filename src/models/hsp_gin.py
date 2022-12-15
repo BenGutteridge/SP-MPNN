@@ -102,7 +102,7 @@ class NetHSP_GIN(torch.nn.Module):
             additional_kwargs["edgesum_relu"] = False
             self.atom_embedding = Embedding(120, self.emb_sizes[0])
             self.chirality_embedding = Embedding(3, self.emb_sizes[0])
-        else:
+        else: # APPLIES FOR QM9 -- a linear layer w batchnorm
             self.initial_mlp = instantiate_mlp(
                 in_channels=num_features,
                 out_channels=emb_sizes[0],
