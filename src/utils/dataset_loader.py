@@ -47,6 +47,7 @@ def read_qm9(direc, file, transform_f, processed_root):
     presaved_path = osp.join(processed_root, file + ".pre")
     if not osp.exists(presaved_path):  # The file doesn't exist
         with gzip.open(path, "r") as f:
+            print('File not found. Reading from %s...' % path)
             data = f.read().decode("utf-8")
             graphs = [json.loads(jline) for jline in data.splitlines()]
             pyg_graphs = [
@@ -58,12 +59,14 @@ def read_qm9(direc, file, transform_f, processed_root):
             if not osp.exists(processed_root):
                 os.mkdir(processed_root)
             with open(presaved_path, "wb") as g:  # Save for future reference
+                print('Saving file to %s...' % presaved_path)
                 pickle.dump(pyg_graphs, g)
                 g.close()
             f.close()
             return pyg_graphs
     else:  # Load the pre-existing file
         with open(presaved_path, "rb") as g:
+            print('Loading pre-saved file from %s...' % presaved_path)
             pyg_graphs = pickle.load(g)
             g.close()
         return pyg_graphs
