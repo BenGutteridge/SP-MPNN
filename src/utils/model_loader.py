@@ -72,7 +72,12 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
         )
         return model
 
-    inside, outside = args.model.lower().split("-")[1:3]
+    try:
+        inside, outside = args.model.lower().split("_")[1:3]
+    except:
+        print('Please separate with underscores not hyphens')
+        inside, outside = args.model.lower().split("-")[1:3]
+
 
     if not inside in ["attn_nh", "global_attn_nh", "sum", "rsum", "edgesum"]: # TODO what do these mean?
         raise ValueError("Invalid inside model aggregation.")

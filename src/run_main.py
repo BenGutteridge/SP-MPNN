@@ -108,7 +108,7 @@ parser.add_argument(
 )
 
 ####
-arg = "-d QM9 -m SP-RSUM-WEIGHT --max_distance 5 --num_layers 3 --specific_task 0 --mode gr --epochs 1"
+arg = "-d QM9 -m SP_RSUM_WEIGHT --max_distance 5 --num_layers 8 --specific_task 5 --mode gr --epochs 1"
 ####
 
 args = parser.parse_args(arg.split())
