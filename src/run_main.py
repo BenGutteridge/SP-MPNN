@@ -7,7 +7,7 @@ from utils import get_dataset, get_model
 from experiments.run_gc import run_model_gc
 from experiments.run_gc_ogb import run_model_gc_ogb
 from experiments.run_gr import run_model_gr
-import neptune.new as neptune
+# import neptune.new as neptune
 
 
 def str2bool(v):
@@ -23,16 +23,17 @@ def str2bool(v):
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-try:
-    if config["DEFAULT"]["neptune_token"] and config["DEFAULT"]["neptune_token"] != "...":
-        neptune_client = neptune.init(
-            project=config["DEFAULT"]["neptune_project"],
-            api_token=config["DEFAULT"]["neptune_token"],
-        )
-    else: # added - error
-        neptune_client = None
-except:
-    neptune_client = None
+neptune_client = None
+# try:
+#     if config["DEFAULT"]["neptune_token"] and config["DEFAULT"]["neptune_token"] != "...":
+#         neptune_client = neptune.init(
+#             project=config["DEFAULT"]["neptune_project"],
+#             api_token=config["DEFAULT"]["neptune_token"],
+#         )
+#     else: # added - error
+#         neptune_client = None
+# except:
+#     neptune_client = None
 
 # CLI configuration
 parser = argparse.ArgumentParser()
