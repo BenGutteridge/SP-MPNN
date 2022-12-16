@@ -9,6 +9,7 @@ from experiments.run_gc_ogb import run_model_gc_ogb
 from experiments.run_gr import run_model_gr
 import neptune.new as neptune
 
+torch.autograd.set_detect_anomaly(True)
 
 def str2bool(v):
     if v.lower() in ("yes", "true", "t", "y", "1"):
@@ -119,10 +120,17 @@ parser.add_argument(
     default="Untitled",
 )
 
+parser.add_argument(
+    "--rbar",
+    help="rbar",
+    type=int,
+    default=1,
+)
+
 ####
 my_args = [
     "-d QM9",
-    "-m SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
+    "-m DeLite-SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
     "--max_distance 5",     # K, I think
     "--num_layers 8",
     "--specific_task 5",    # index for the regression target (0-12 for QM9) 
@@ -131,11 +139,13 @@ my_args = [
     "--batch_size 128",
     "--nb_reruns 1",        # number of times to repeat the experiment
     "--use_neptune True",
-    "--neptune_name test_run",
+    "--neptune_name test_run"
 ]
 my_args = ' '.join(my_args)
 ####
 args = parser.parse_args(my_args.split())
+if args.rbar == '-1':
+    args.rbar = float('inf')
 
 # works
 neptune_client = None

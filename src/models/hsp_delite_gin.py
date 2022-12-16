@@ -4,7 +4,7 @@ from torch.nn import ModuleList, Linear, Embedding
 from torch_scatter import scatter_max, scatter_mean, scatter_sum
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from models.layers.hsp_gin_layer import instantiate_mlp
-from models.layers import GIN_HSP_Layer
+from models.layers import DeLite_GIN_HSP_Layer
 
 
 # Modes: GC: Graph Classification.
@@ -12,9 +12,10 @@ GRAPH_CLASS = "gc"
 GRAPH_REG = "gr"
 
 
-class NetHSP_GIN(torch.nn.Module):
+class NetHSP_DeLite_GIN(torch.nn.Module):
     def __init__(
         self,
+        rbar,
         num_features,
         num_classes,
         emb_sizes=None,
@@ -35,7 +36,7 @@ class NetHSP_GIN(torch.nn.Module):
         learnable_emb=False,
         use_feat=False,
     ):
-        super(NetHSP_GIN, self).__init__()
+        super(NetHSP_DeLite_GIN, self).__init__()
         if emb_sizes is None:  # Python default handling for mutable input
             emb_sizes = [64, 64, 64]  # The 0th entry is the input feature size.
         self.num_features = num_features
@@ -102,7 +103,7 @@ class NetHSP_GIN(torch.nn.Module):
             additional_kwargs["edgesum_relu"] = False
             self.atom_embedding = Embedding(120, self.emb_sizes[0])
             self.chirality_embedding = Embedding(3, self.emb_sizes[0])
-        else: # APPLIES FOR QM9 -- a linear layer w batchnorm # ***********************************************
+        else: # APPLIES FOR QM9 -- a linear layer w batchnorm
             self.initial_mlp = instantiate_mlp(
                 in_channels=num_features,
                 out_channels=emb_sizes[0],
@@ -110,7 +111,7 @@ class NetHSP_GIN(torch.nn.Module):
                 batch_norm=batch_norm,
                 final_activation=True,
             )
-        if self.mode == GRAPH_REG:  # Mimicking the GNN-FiLM paper: # *****************************************
+        if self.mode == GRAPH_REG:  # Mimicking the GNN-FiLM paper:
             # https://github.com/microsoft/tf-gnn-samples/blob/73e2c950736ac7f662fa88c03c9c0c45fe29d65f/tasks/qm9_task.py
             # Lines 163 - 188
             self.regression_gate_mlp = instantiate_mlp(
@@ -133,10 +134,12 @@ class NetHSP_GIN(torch.nn.Module):
         linears = []
         if self.layer_norm:
             layer_norms = []
-        for i in range(self.num_layers):
-            hsp_layer = GIN_HSP_Layer(
-                in_channels=emb_sizes[i],
-                out_channels=emb_sizes[i + 1],
+        for t in range(self.num_layers):
+            hsp_layer = DeLite_GIN_HSP_Layer(
+                t=t,
+                rbar=rbar,
+                in_channels=emb_sizes[t],
+                out_channels=emb_sizes[t + 1],
                 eps=self.eps,
                 max_distance=self.max_distance,
                 inside_aggr=inside_aggr,
@@ -148,8 +151,8 @@ class NetHSP_GIN(torch.nn.Module):
             ).to(device)
             hsp_layers.append(hsp_layer)
             if self.layer_norm:
-                layer_norms.append(torch.nn.LayerNorm(emb_sizes[i + 1]))
-            linears.append(Linear(emb_sizes[i + 1], num_classes).to(device))
+                layer_norms.append(torch.nn.LayerNorm(emb_sizes[t + 1]))
+            linears.append(Linear(emb_sizes[t + 1], num_classes).to(device))
 
         self.hsp_modules = ModuleList(hsp_layers)
         self.linear_modules = ModuleList(linears)
@@ -259,7 +262,12 @@ class NetHSP_GIN(torch.nn.Module):
 
         if self.residual_freq > 0:
             last_state_list = [x_feat]  # If skip connections are being used
-        for idx, value in enumerate(zip(self.hsp_modules, self.linear_modules)):
+        
+        # xs = torch.zeros((len(self.hsp_modules), x_feat.shape[0], x_feat.shape[1]))#.to(self.device)
+        xs = []
+        for t, value in enumerate(zip(self.hsp_modules, self.linear_modules)): # ******* PER-LAYER LOOP *****************
+            # xs[t] = x_feat
+            xs.append(x_feat)
             hsp_layer, linear_layer = value
             if (
                 self.inside_aggr == "edgesum"
@@ -268,7 +276,7 @@ class NetHSP_GIN(torch.nn.Module):
                     if self.dataset == "ogbg-ppa":
                         enc = self.edge_encoder
                     else:
-                        enc = self.edge_encoders[idx]
+                        enc = self.edge_encoders[t]
 
                     if self.use_feat:
                         edge_embeddings = enc(
@@ -284,8 +292,9 @@ class NetHSP_GIN(torch.nn.Module):
                     edge_attr = data.edge_attr.to(self.device)
             else:
                 edge_embeddings = None
-            x_feat = hsp_layer(
-                node_embeddings=x_feat,
+            x_feat = hsp_layer( # ************************************************************ IMPORTANT BIT: goes through all the layers
+                t,
+                node_embeddings=xs, # node embeddings contains all x_feats from 0...t
                 edge_index=edge_index,
                 edge_weights=edge_weights,
                 batch=batch,
@@ -293,7 +302,7 @@ class NetHSP_GIN(torch.nn.Module):
                 direct_edge_embs=edge_embeddings,
             ).to(self.device)
             if self.residual_freq > 0:  # Time to introduce a residual
-                if self.residual_freq <= idx + 1:
+                if self.residual_freq <= t + 1:
                     x_feat = (
                         x_feat + last_state_list[-self.residual_freq]
                     )  # Residual connection
@@ -311,7 +320,7 @@ class NetHSP_GIN(torch.nn.Module):
                 else:
                     out += F.dropout(
                         linear_layer(
-                            self.layer_norms[idx](self.pooling(x_feat, batch))
+                            self.layer_norms[t](self.pooling(x_feat, batch))
                         ),
                         p=self.drpt_prob,
                         training=self.training,
@@ -319,7 +328,7 @@ class NetHSP_GIN(torch.nn.Module):
             elif self.mode == GRAPH_REG:
                 if self.layer_norm:
                     x_feat = torch.relu(
-                        self.layer_norms[idx](x_feat)
+                        self.layer_norms[t](x_feat)
                     )  # Just apply layer norms then. ReLU is crucial.
                     # Otherwise Layer Norm freezes
                 else:

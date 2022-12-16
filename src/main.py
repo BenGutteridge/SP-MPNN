@@ -118,8 +118,16 @@ parser.add_argument(
     default="Untitled",
 )
 
+parser.add_argument(
+    "--rbar",
+    help="rbar",
+    type=int,
+    default=1,
+)
 
 args = parser.parse_args()
+if args.rbar == '-1':
+    args.rbar = float('inf')
 
 # works
 neptune_client = None

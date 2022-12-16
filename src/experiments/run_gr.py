@@ -156,7 +156,7 @@ def run_model_gr(
 
                 print(
                     "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, "
-                    "Val Loss: {:.7f}, Test MAE: {:.7f}, Time: {.1f}".format(
+                    "Val Loss: {:.7f}, Test MAE: {:.7f}, Time: {:.1f}".format(
                         epoch, lr, train_mse, val_mse, test_mae, time.time() - start_t
                     )
                 )

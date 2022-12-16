@@ -1,4 +1,4 @@
-from models import NetHSP_GIN, NetGIN, NetGCN, NetGAT
+from models import NetHSP_GIN, NetHSP_DeLite_GIN, NetGIN, NetGCN, NetGAT
 
 
 def get_model(args, device="cpu", num_features=None, num_classes=None):
@@ -72,12 +72,7 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
         )
         return model
 
-    try:
-        inside, outside = args.model.lower().split("_")[1:3]
-    except:
-        print('Please separate with underscores not hyphens')
-        inside, outside = args.model.lower().split("-")[1:3]
-
+    model_type, inside, outside = args.model.lower().split("_")
 
     if not inside in ["attn_nh", "global_attn_nh", "sum", "rsum", "edgesum"]: # TODO what do these mean?
         raise ValueError("Invalid inside model aggregation.")
@@ -91,25 +86,54 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
     else:
         ogb_gc = None
 
-    model = NetHSP_GIN( # generic model with all of their own stuff implemented in it
-        num_features,
-        num_classes,
-        emb_sizes=emb_sizes, # list of length n_layers+1 with hidden dims I think
-        device=device,
-        max_distance=args.max_distance,
-        scatter=args.scatter,
-        drpt_prob=args.dropout,
-        inside_aggr=inside,
-        outside_aggr=outside,
-        mode=args.mode,
-        eps=args.eps,
-        ogb_gc=ogb_gc,
-        batch_norm=args.batch_norm,
-        layer_norm=args.layer_norm,
-        pool_gc=args.pool_gc,
-        residual_frequency=args.res_freq,
-        dataset=args.dataset,
-        learnable_emb=args.learnable_emb,
-        use_feat=args.use_feat,
-    ).to(device)
+    # ******************************************************************************************
+    # DeLite-R-SPN
+    if model_type == 'delite-sp':
+        print('Using DeLite-R-SPN model')
+        model = NetHSP_DeLite_GIN( # generic model with all of their own stuff implemented in it
+            args.rbar,
+            num_features,
+            num_classes,
+            emb_sizes=emb_sizes, # list of length n_layers+1 with hidden dims I think
+            device=device,
+            max_distance=args.max_distance,
+            scatter=args.scatter,
+            drpt_prob=args.dropout,
+            inside_aggr=inside,
+            outside_aggr=outside,
+            mode=args.mode,
+            eps=args.eps,
+            ogb_gc=ogb_gc,
+            batch_norm=args.batch_norm,
+            layer_norm=args.layer_norm,
+            pool_gc=args.pool_gc,
+            residual_frequency=args.res_freq,
+            dataset=args.dataset,
+            learnable_emb=args.learnable_emb,
+            use_feat=args.use_feat,
+        ).to(device)
+    # ******************************************************************************************
+    else:
+        print("Model type is %s, defaulting to NetHSP_GIN" % args.model)
+        model = NetHSP_GIN( # generic model with all of their own stuff implemented in it
+            num_features,
+            num_classes,
+            emb_sizes=emb_sizes, # list of length n_layers+1 with hidden dims I think
+            device=device,
+            max_distance=args.max_distance,
+            scatter=args.scatter,
+            drpt_prob=args.dropout,
+            inside_aggr=inside,
+            outside_aggr=outside,
+            mode=args.mode,
+            eps=args.eps,
+            ogb_gc=ogb_gc,
+            batch_norm=args.batch_norm,
+            layer_norm=args.layer_norm,
+            pool_gc=args.pool_gc,
+            residual_frequency=args.res_freq,
+            dataset=args.dataset,
+            learnable_emb=args.learnable_emb,
+            use_feat=args.use_feat,
+        ).to(device)
     return model
