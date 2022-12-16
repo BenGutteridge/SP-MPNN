@@ -7,7 +7,6 @@ from utils import get_dataset, get_model
 from experiments.run_gc import run_model_gc
 from experiments.run_gc_ogb import run_model_gc_ogb
 from experiments.run_gr import run_model_gr
-# import neptune.new as neptune
 
 
 def str2bool(v):
@@ -31,17 +30,6 @@ def str2bool(v):
 #     )
 # else: # added - error
 #     neptune_client = None
-
-# works
-neptune_client = None
-if torch.cuda.is_available():
-    from config import neptune_token, neptune_project
-    if neptune_token and neptune_token != "...":
-        neptune_client = neptune.init_run(
-            project=neptune_project,
-            api_token=neptune_token)
-    print("CUDA is available!  Using neptune_project '%s'" % neptune_project)
-#     )
 
 # CLI configuration
 parser = argparse.ArgumentParser()
@@ -116,7 +104,36 @@ parser.add_argument(
     default=False,
 )
 
+parser.add_argument(
+    "--use_neptune",
+    help="(OGBG). Whether to use neptune logging (Default False)",
+    type=str2bool,
+    default=False,
+)
+
+parser.add_argument(
+    "--neptune_name",
+    help="Name of run on neptune",
+    type=str,
+    default="Untitled",
+)
+
+
 args = parser.parse_args()
+
+# works
+neptune_client = None
+if args.use_neptune:
+    if torch.cuda.is_available():
+        import neptune.new as neptune
+        from config import neptune_token, neptune_project
+        if neptune_token and neptune_token != "...":
+            neptune_client = neptune.init_run(
+                name=args.neptune_name,
+                project=neptune_project,
+                api_token=neptune_token)
+        print("Using neptune_project '%s'" % neptune_project)
+    else: print("Neptune not available on CPU")
 
 # Add arguments to neptune
 if neptune_client:
