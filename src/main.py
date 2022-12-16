@@ -20,14 +20,27 @@ def str2bool(v):
 
 
 # Neptune configuration
-config = configparser.ConfigParser()
-config.read("config.ini")
 
-neptune_client = None
+# # doesn't work
+# config = configparser.ConfigParser()
+# config.read("config.ini")
 # if config["DEFAULT"]["neptune_token"] and config["DEFAULT"]["neptune_token"] != "...":
 #     neptune_client = neptune.init(
 #         project=config["DEFAULT"]["neptune_project"],
 #         api_token=config["DEFAULT"]["neptune_token"],
+#     )
+# else: # added - error
+#     neptune_client = None
+
+# works
+neptune_client = None
+if torch.cuda.is_available():
+    from config import neptune_token, neptune_project
+    if neptune_token and neptune_token != "...":
+        neptune_client = neptune.init_run(
+            project=neptune_project,
+            api_token=neptune_token)
+    print("CUDA is available!  Using neptune_project '%s'" % neptune_project)
 #     )
 
 # CLI configuration

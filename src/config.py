@@ -1,3 +1,3 @@
-[DEFAULT]
+# [DEFAULT]
 neptune_token = "eyJhcGlfYWRkcmVzcyI6Imh0dHBzOi8vYXBwLm5lcHR1bmUuYWkiLCJhcGlfdXJsIjoiaHR0cHM6Ly9hcHAubmVwdHVuZS5haSIsImFwaV9rZXkiOiJjYjc4MjY2Mi0wMTZjLTRkOGYtYTMwYi05MzYxZWExMzlhNzQifQ=="
 neptune_project = "benpgutteridge/sp-mpnn"
