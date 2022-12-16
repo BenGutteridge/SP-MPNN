@@ -1,5 +1,6 @@
 import torch
 from torch_geometric.loader import DataLoader
+import time
 
 
 avail_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -84,6 +85,7 @@ def run_model_gc(
             best_val_loss, test_acc = 100, 0
             best_val_acc = 0
             for epoch in range(1, epochs + 1):
+                start_t = time.time()
                 lr = scheduler.optimizer.param_groups[0]["lr"]
                 train_loss = train(model, train_loader, optimizer, loss_fun)
                 val_loss = val(model, val_loader, loss_fun)
@@ -109,8 +111,8 @@ def run_model_gc(
 
                 print(
                     "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, "
-                    "Val Loss: {:.7f}, Test Acc: {:.7f}".format(
-                        epoch, lr, train_loss, val_loss, test_acc
+                    "Val Loss: {:.7f}, Test Acc: {:.7f}, Time: {:.1f}".format(
+                        epoch, lr, train_loss, val_loss, test_acc, time.time() - start_t
                     )
                 )
 
