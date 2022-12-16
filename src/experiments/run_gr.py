@@ -1,6 +1,7 @@
 import torch
 from torch_geometric.loader import DataLoader
 import numpy as np
+import time
 
 # This file is essentially tailor-made for QM9
 TASKS = [
@@ -128,6 +129,7 @@ def run_model_gr(
             best_val_mae = 100000
 
             for epoch in range(1, epochs + 1):
+                start_t = time.time()
                 # lr = scheduler.optimizer.param_groups[0]['lr']  # Same as GC
                 train_mse = train(
                     model, train_loader, optimizer, loss_fun, device=device, y_idx=y_idx
@@ -154,8 +156,8 @@ def run_model_gr(
 
                 print(
                     "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, "
-                    "Val Loss: {:.7f}, Test MAE: {:.7f}".format(
-                        epoch, lr, train_mse, val_mse, test_mae
+                    "Val Loss: {:.7f}, Test MAE: {:.7f}, Time: {.1f}".format(
+                        epoch, lr, train_mse, val_mse, test_mae, time.time() - start_t
                     )
                 )
 
