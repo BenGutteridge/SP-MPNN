@@ -4,7 +4,7 @@ from torch.nn import ModuleList, Linear, Embedding
 from torch_scatter import scatter_max, scatter_mean, scatter_sum
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from models.layers.hsp_gin_layer import instantiate_mlp
-from models.layers import DeLite_GIN_HSP_Layer
+from models.layers import DeLite_GIN_HSP_Layer, Delay_GIN_HSP_Layer
 
 
 # Modes: GC: Graph Classification.
@@ -12,7 +12,7 @@ GRAPH_CLASS = "gc"
 GRAPH_REG = "gr"
 
 
-class NetHSP_DeLite_GIN(torch.nn.Module):
+class NetHSP_Delay_GIN(torch.nn.Module):
     def __init__(
         self,
         rbar,
@@ -35,8 +35,9 @@ class NetHSP_DeLite_GIN(torch.nn.Module):
         dataset=None,
         learnable_emb=False,
         use_feat=False,
+        use_lite_model=False,
     ):
-        super(NetHSP_DeLite_GIN, self).__init__()
+        super(NetHSP_Delay_GIN, self).__init__()
         if emb_sizes is None:  # Python default handling for mutable input
             emb_sizes = [64, 64, 64]  # The 0th entry is the input feature size.
         self.num_features = num_features
@@ -59,6 +60,11 @@ class NetHSP_DeLite_GIN(torch.nn.Module):
         self.pool_gc = pool_gc
         self.residual_freq = residual_frequency
         self.learnable_emb = learnable_emb
+
+        if use_lite_model:
+            delay_layer = DeLite_GIN_HSP_Layer
+        else:
+            delay_layer = Delay_GIN_HSP_Layer
 
         additional_kwargs = {"edgesum_relu": True}
         if self.ogb_gc is not None:  # This needs dedicated encoders
@@ -135,7 +141,7 @@ class NetHSP_DeLite_GIN(torch.nn.Module):
         if self.layer_norm:
             layer_norms = []
         for t in range(self.num_layers):
-            hsp_layer = DeLite_GIN_HSP_Layer(
+            hsp_layer = delay_layer(
                 t=t,
                 rbar=rbar,
                 in_channels=emb_sizes[t],

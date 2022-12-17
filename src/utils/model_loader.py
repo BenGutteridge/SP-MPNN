@@ -1,4 +1,4 @@
-from models import NetHSP_GIN, NetHSP_DeLite_GIN, NetGIN, NetGCN, NetGAT
+from models import NetHSP_GIN, NetHSP_Delay_GIN, NetGIN, NetGCN, NetGAT
 
 
 def get_model(args, device="cpu", num_features=None, num_classes=None):
@@ -87,10 +87,16 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
         ogb_gc = None
 
     # ******************************************************************************************
-    # DeLite-R-SPN
-    if model_type == 'delite-sp':
-        print('Using DeLite-R-SPN model')
-        model = NetHSP_DeLite_GIN( # generic model with all of their own stuff implemented in it
+    # Delay-R-SPN
+    if model_type == 'delay-sp' or model_type=='delite-sp':
+        if model_type.startswith('delite'):
+            print('Using Delite-R-SPN model')
+            use_lite_model = True
+        else:
+            use_lite_model = False
+            print('Using Delay-R-SPN model')
+
+        model = NetHSP_Delay_GIN( # generic model with all of their own stuff implemented in it
             args.rbar,
             num_features,
             num_classes,
@@ -111,6 +117,7 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
             dataset=args.dataset,
             learnable_emb=args.learnable_emb,
             use_feat=args.use_feat,
+            use_lite_model=use_lite_model,
         ).to(device)
     # ******************************************************************************************
     else:
