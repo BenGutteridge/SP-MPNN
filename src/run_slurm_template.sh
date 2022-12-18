@@ -22,7 +22,7 @@
 module load cuda/10.2
 module load python/anaconda3
 source $condaDotFile
-conda activate spn
+conda activate lrgb2
 conda info --
 echo $CONDA_DEFAULT_ENV
 conda list
