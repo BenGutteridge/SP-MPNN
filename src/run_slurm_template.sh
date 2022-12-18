@@ -26,6 +26,7 @@ conda activate spn
 conda info --
 echo $CONDA_DEFAULT_ENV
 conda list
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=10.2 -c pytorch
 python3 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --num_layers 8  --mode gr --nb_reruns 1 --specific_task 0 --use_neptune True &
   python3 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --num_layers 8  --mode gr --nb_reruns 1 --specific_task 1 --use_neptune True &
   python3 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --num_layers 8  --mode gr --nb_reruns 1 --specific_task 2 --use_neptune True &
