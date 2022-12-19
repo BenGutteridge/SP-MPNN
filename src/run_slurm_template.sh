@@ -28,6 +28,7 @@ conda info --
 echo $CONDA_DEFAULT_ENV
 conda list
 python -c "import torch; print(torch.__version__)"
+python3 -c "import torch; print(torch.__version__)"
 # module load cuda/10.2
 
 model=SP_RSUM_WEIGHT
