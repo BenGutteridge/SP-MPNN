@@ -31,8 +31,16 @@ echo "Trying python"
 python -c "import torch; print(torch.__version__)"
 echo "Trying python3"
 python3 -c "import torch; print(torch.__version__)"
+echo "Trying python3.9"
+python3.9 -c "import torch; print(torch.__version__)"
+echo "Trying python3.8"
+python3.8 -c "import torch; print(torch.__version__)"
+echo "Trying python3.7"
+python3.7 -c "import torch; print(torch.__version__)"
+echo "Trying python3.6"
+python3.6 -c "import torch; print(torch.__version__)"
 # module load cuda/10.2
-
+echo "Trying program"
 model=SP_RSUM_WEIGHT
 L=8
 d=128
