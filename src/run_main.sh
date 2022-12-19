@@ -75,8 +75,3 @@ echo "model: $model\nrepeat: $repeat\nL: $L\nk: $k\nrbar: $rbar\ntask: $task\nbs
 
 # Pass arguments to another script
 python main.py -d QM9 -m "$model" --emb_dim 128 --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
-
-batch_size 32
-epochs 300
-use_neptune False
-neptune_name "Untitled"
