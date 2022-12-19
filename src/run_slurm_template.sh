@@ -27,6 +27,7 @@ conda info --
 # echo $CONDA_DEFAULT_ENV
 # conda list
 echo "Trying program"
+
 model=SP_RSUM_WEIGHT
 L=8
 d=128
