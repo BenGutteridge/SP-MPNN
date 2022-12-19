@@ -3,10 +3,10 @@
 
 model="SP_RSUM_WEIGHT" # other options Delay-SP_RSUM_WEIGHT, DeLite-SP_RSUM_WEIGHT
 use_neptune="True"
-repeat=1
+repeat=3
 
 L=$2
-bs=128 # 32
+bs=128 # 32 default, 128 in paper
 epochs=300
 
 K=$1
