@@ -27,7 +27,7 @@ conda info --
 # echo $CONDA_DEFAULT_ENV
 # conda list
 echo "Trying program"
-
+python3.9 check_torch.py
 model=SP_RSUM_WEIGHT
 L=8
 d=128
