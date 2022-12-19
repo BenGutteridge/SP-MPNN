@@ -140,7 +140,7 @@ my_args = [
     "--epochs 1",
     "--batch_size 128",
     "--nb_reruns 1",        # number of times to repeat the experiment
-    "--use_neptune True",
+    "--use_neptune False",
     "--neptune_name test_run",
     "--emb_dim 128",
 ]
