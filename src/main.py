@@ -1,6 +1,9 @@
+print('Started')
 import time
 import configparser
+print('Running main.py')
 import torch
+print('Finished importing torch')
 import argparse
 import os.path as osp
 from utils import get_dataset, get_model
