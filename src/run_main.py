@@ -252,6 +252,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
     specific_task = args.specific_task
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Number of parameters: ', num_params)
+    neptune_client["num_params"].log(num_params)
     run_model_gr(
         model=model,
         device=device,
