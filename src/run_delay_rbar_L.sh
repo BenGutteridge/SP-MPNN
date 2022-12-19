@@ -16,8 +16,3 @@ do
   neptune_name="${model}_L=${L}_rbar=${rbar}_task=$task"
   bash run_main.sh --model "$model" --repeat "$repeat" --L "$L" --rbar "$rbar" --task "$task" --bs "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name$" &
 done
-for task in {7..12}
-do
-  neptune_name="${model}_L=${L}_rbar=${rbar}_task=$task"
-  bash run_main.sh --model "$model" --repeat "$repeat" --L "$L" --rbar "$rbar" --task "$task" --bs "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name$" &
-done
