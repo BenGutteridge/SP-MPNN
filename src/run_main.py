@@ -131,7 +131,8 @@ parser.add_argument(
 my_args = [
     "-d QM9",
     # "-m DeLite-SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
-    "-m Delay-SP_RSUM_WEIGHT",
+    # "-m Delay-SP_RSUM_WEIGHT",
+    "-m SP_RSUM_WEIGHT",
     "--max_distance 5",     # K, I think
     "--num_layers 8",
     "--specific_task 5",    # index for the regression target (0-12 for QM9) 
@@ -140,7 +141,8 @@ my_args = [
     "--batch_size 128",
     "--nb_reruns 1",        # number of times to repeat the experiment
     "--use_neptune True",
-    "--neptune_name test_run"
+    "--neptune_name test_run",
+    "--emb_dim 128",
 ]
 my_args = ' '.join(my_args)
 ####
