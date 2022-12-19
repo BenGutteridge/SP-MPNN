@@ -23,23 +23,9 @@ module load cuda/10.2
 module load python/anaconda3
 source $condaDotFile
 conda activate lrgb2
-# module load cuda/10.2
 conda info --
 # echo $CONDA_DEFAULT_ENV
 # conda list
-echo "Trying python"
-python -c "import torch; print(torch.__version__)"
-echo "Trying python3"
-python3 -c "import torch; print(torch.__version__)"
-echo "Trying python3.9"
-python3.9 -c "import torch; print(torch.__version__)"
-echo "Trying python3.8"
-python3.8 -c "import torch; print(torch.__version__)"
-echo "Trying python3.7"
-python3.7 -c "import torch; print(torch.__version__)"
-echo "Trying python3.6"
-python3.6 -c "import torch; print(torch.__version__)"
-# module load cuda/10.2
 echo "Trying program"
 model=SP_RSUM_WEIGHT
 L=8
@@ -51,6 +37,6 @@ repeat=3
 bs=128
 epochs=300
 use_neptune=False
-# neptune_name=JADE
+neptune_name=JADE
 
-python3 main.py -d QM9 -m "$model" --emb_dim "$d" --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
+python3.9 main.py -d QM9 -m "$model" --emb_dim "$d" --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
