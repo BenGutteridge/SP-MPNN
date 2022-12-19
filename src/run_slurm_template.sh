@@ -25,9 +25,11 @@ source $condaDotFile
 conda activate lrgb2
 # module load cuda/10.2
 conda info --
-echo $CONDA_DEFAULT_ENV
-conda list
+# echo $CONDA_DEFAULT_ENV
+# conda list
+echo "Trying python"
 python -c "import torch; print(torch.__version__)"
+echo "Trying python3"
 python3 -c "import torch; print(torch.__version__)"
 # module load cuda/10.2
 
