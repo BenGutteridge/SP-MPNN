@@ -4,6 +4,7 @@
 model="SP_RSUM_WEIGHT" # other options Delay-SP_RSUM_WEIGHT, DeLite-SP_RSUM_WEIGHT
 L=8
 k=10
+d=128 # hidden dim, default in paper
 rbar=1
 task="-1"
 repeat=3
@@ -25,6 +26,11 @@ case $key in
     ;;
     --repeat)
     repeat="$2"
+    shift # past argument
+    shift # past value
+    ;;
+    --d)
+    d="$2"
     shift # past argument
     shift # past value
     ;;
@@ -74,4 +80,4 @@ done
 echo "model: $model\nrepeat: $repeat\nL: $L\nk: $k\nrbar: $rbar\ntask: $task\nbs: $bs\nepochs: $epochs\nuse_neptune: $use_neptune\nneptune_name: $neptune_name" 
 
 # Pass arguments to another script
-python main.py -d QM9 -m "$model" --emb_dim 128 --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
+python main.py -d QM9 -m "$model" --emb_dim "$d" --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
