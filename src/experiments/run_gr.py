@@ -3,6 +3,8 @@ from torch_geometric.loader import DataLoader
 import numpy as np
 import time
 
+from torch.utils.tensorboard import SummaryWriter
+
 # This file is essentially tailor-made for QM9
 TASKS = [
     "mu",
@@ -97,7 +99,7 @@ def run_model_gr(
     loss_fun = torch.nn.MSELoss(
         reduction="sum"
     )  # Mean-Squared Loss is used for regression
-
+    writer = SummaryWriter()
     print("---------------- Training on provided split (QM9) ----------------")
     for y_idx, targ in enumerate(TASKS):  # Solve each one at a time...
         if 0 <= specific_task != y_idx:
@@ -140,6 +142,11 @@ def run_model_gr(
                     test_mae = test(model, test_loader, device=device, y_idx=y_idx)
                     best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
                     best_val_mse = val_mse
+
+                writer.add_scalar('Train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
+                writer.add_scalar('Val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
+                writer.add_scalar('Test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                writer.flush()
 
                 if neptune_client is not None:
                     neptune_client[rerun_str + "/params/lr"].log(lr)
