@@ -22,14 +22,14 @@
 module load cuda/10.2
 module load python/anaconda3
 source $condaDotFile
-conda activate spn2
+conda activate lrgb2
 conda info --
 echo "python"
 python -c "import torch; print(torch.__version__)"
+python run_main.py
 echo "python3"
 python3 -c "import torch; print(torch.__version__)"
-echo "python3.8"
-python3.8 -c "import torch; print(torch.__version__)"
+python3 run_main.py
 echo "python3.9"
 python3.9 -c "import torch; print(torch.__version__)"
 python3 run_main.py
