@@ -1,6 +1,8 @@
+print('run_main.py running')
 import time
 import configparser
 import torch
+print('Loaded torch')
 import argparse
 import os.path as osp
 from utils import get_dataset, get_model
@@ -8,6 +10,7 @@ from experiments.run_gc import run_model_gc
 from experiments.run_gc_ogb import run_model_gc_ogb
 from experiments.run_gr import run_model_gr
 import neptune.new as neptune
+print('Finished loading dependencies')
 
 torch.autograd.set_detect_anomaly(True)
 
@@ -135,11 +138,11 @@ my_args = [
     # "-m SP_RSUM_WEIGHT",
     "--max_distance 5",     # K, I think
     "--num_layers 8",
-    "--specific_task 12",    # index for the regression target (0-12 for QM9) 
+    "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
-    "--epochs 300",
-    "--batch_size 64",
-    "--nb_reruns 3",        # number of times to repeat the experiment
+    "--epochs 1",
+    "--batch_size 128",
+    "--nb_reruns 1",        # number of times to repeat the experiment
     "--use_neptune False",
     "--neptune_name test_run",
     "--emb_dim 64",
