@@ -7,7 +7,7 @@
 #SBATCH --time=36:00:00
 
 # set name of job
-#SBATCH --job-name=MAIN
+#SBATCH --job-name=spn2
 
 # set number of GPUs
 #SBATCH --gres=gpu:1
@@ -22,11 +22,17 @@
 module load cuda/10.2
 module load python/anaconda3
 source $condaDotFile
-conda activate lrgb2
+conda activate spn2
 conda info --
+echo "python"
+python -c "import torch; print(torch.__version__)"
+echo "python3"
+python3 -c "import torch; print(torch.__version__)"
+echo "python3.8"
+python3.8 -c "import torch; print(torch.__version__)"
 echo "python3.9"
 python3.9 -c "import torch; print(torch.__version__)"
-python3.9 run_main.py
+python3 run_main.py
 # echo $CONDA_DEFAULT_ENV
 # conda list
 # bash slurm_bash.sh
