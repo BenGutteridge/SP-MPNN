@@ -135,14 +135,14 @@ my_args = [
     "-m SP_RSUM_WEIGHT",
     "--max_distance 5",     # K, I think
     "--num_layers 8",
-    "--specific_task 5",    # index for the regression target (0-12 for QM9) 
+    "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
-    "--epochs 1",
-    "--batch_size 128",
+    "--epochs 300",
+    "--batch_size 64",
     "--nb_reruns 1",        # number of times to repeat the experiment
     "--use_neptune False",
     "--neptune_name test_run",
-    "--emb_dim 128",
+    "--emb_dim 64",
 ]
 my_args = ' '.join(my_args)
 ####
