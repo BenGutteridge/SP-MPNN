@@ -30,4 +30,4 @@ python3.9 -c "import torch; print(torch.__version__)"
 # echo $CONDA_DEFAULT_ENV
 # conda list
 # bash slurm_bash.sh
-python3.9 main.py -d QM9 -m SP_RSUM_WEIGHT --emb_dim 64 --nb_reruns 1 --mode gr --max_distance 10 --num_layers 8 --specific_task 0 --rbar 1 --batch_size 128 --epochs 10 --use_neptune False --neptune_name JADE
+python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --emb_dim 64 --nb_reruns 1 --mode gr --max_distance 10 --num_layers 8 --specific_task 0 --rbar 1 --batch_size 128 --epochs 10 --use_neptune False --neptune_name JADE
