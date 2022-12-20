@@ -32,7 +32,7 @@ python3 -c "import torch; print(torch.__version__)"
 python3 run_main.py
 echo "python3.9"
 python3.9 -c "import torch; print(torch.__version__)"
-python3 run_main.py
+python3.9 run_main.py
 # echo $CONDA_DEFAULT_ENV
 # conda list
 # bash slurm_bash.sh
