@@ -135,7 +135,7 @@ my_args = [
     # "-m SP_RSUM_WEIGHT",
     "--max_distance 5",     # K, I think
     "--num_layers 8",
-    "--specific_task 9",    # index for the regression target (0-12 for QM9) 
+    "--specific_task 10",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
     "--epochs 300",
     "--batch_size 64",
