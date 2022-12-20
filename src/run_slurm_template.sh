@@ -7,7 +7,7 @@
 #SBATCH --time=00:10:00
 
 # set name of job
-#SBATCH --job-name=spn2
+#SBATCH --job-name=lrgb2
 
 # set number of GPUs
 #SBATCH --gres=gpu:1
