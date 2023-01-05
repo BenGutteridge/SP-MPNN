@@ -14,4 +14,5 @@ module load CUDA
 source activate $DATA/spn
 nvcc --version
 python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-bash run_main.sh
+# bash run_main.sh
+python pyg_gpu_checker.py

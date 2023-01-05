@@ -77,7 +77,7 @@ case $key in
 esac
 done
 
-echo "model: $model\nrepeat: $repeat\nL: $L\nk: $k\nrbar: $rbar\ntask: $task\nbs: $bs\nepochs: $epochs\nuse_neptune: $use_neptune\nneptune_name: $neptune_name" 
+echo "model: $model, repeat: $repeat, L: $L, k: $k, rbar: $rbar, task: $task, bs: $bs, epochs: $epochs, use_neptune: $use_neptune, neptune_name: $neptune_name" 
 
 # Pass arguments to another script
 python main.py -d QM9 -m "$model" --emb_dim "$d" --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
