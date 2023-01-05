@@ -236,7 +236,7 @@ class GAT(torch.nn.Module):
     
     
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-device = "cpu"
+# device = "cpu"
 
 print('***\nUsing {} device\n***'.format(device))
 
