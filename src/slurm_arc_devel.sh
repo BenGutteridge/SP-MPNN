@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=spn_dev
+#SBATCH --job-name=chck_dev
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=00:10:00
