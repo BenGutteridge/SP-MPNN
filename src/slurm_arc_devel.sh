@@ -16,6 +16,6 @@ source activate $DATA/spn2
 nvcc --version
 python3 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 # bash run_main.sh
-python3 run_main.py
+# python3 run_main.py
 # python pyg_gpu_checker.py
-# python main.py -d QM9 -m SP_RSUM_WEIGHT --max_distance 3 --num_layers 5 --specific_task -1 --mode gr
+python3 main.py -d QM9 -m SP_RSUM_WEIGHT --max_distance 3 --num_layers 5 --specific_task -1 --mode gr
