@@ -10,7 +10,7 @@
 #SBATCH --gres=gpu:1
 
 # cd $DATA/repos/SP-MPNN/src
-cd $DATA/repos/lrgb/bash_scripts
+cd $DATA/repos/lrgb
 module load Anaconda3
 module load CUDA
 source activate $DATA/spn2
