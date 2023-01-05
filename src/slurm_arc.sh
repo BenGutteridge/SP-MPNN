@@ -10,7 +10,7 @@
 #SBATCH --gres=gpu:1
 cd $DATA/repos/SP-MPNN/src
 module load Anaconda3
-module load CUDA/11.3
+module load CUDA
 source activate $DATA/spn
 python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 bash run_main.sh
