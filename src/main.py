@@ -237,6 +237,8 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
     specific_task = args.specific_task
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Number of parameters: ', num_params)
+    hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('SP') else 'rbar=%02d' % args.rbar
+    run_name = args.dataset + '_' + args.model + '_' + hop_info_str
     if neptune_client:
         neptune_client["num_params"].log(num_params)
     run_model_gr(
@@ -251,6 +253,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
         neptune_client=neptune_client,
         specific_task=specific_task,
         nb_reruns=nb_reruns,
+        run_name=run_name,
     )
 
 if neptune_client:

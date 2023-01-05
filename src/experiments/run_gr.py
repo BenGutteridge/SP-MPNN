@@ -95,11 +95,14 @@ def run_model_gr(
     device="cpu",
     nb_reruns=5, # number of repeats
     specific_task=-1,
+    run_name=time.strftime("%Y-%m-%d_%H%M"),
 ):
     loss_fun = torch.nn.MSELoss(
         reduction="sum"
     )  # Mean-Squared Loss is used for regression
-    writer = SummaryWriter()
+    writer = SummaryWriter(
+        log_dir='runs/'+run_name+'/'+time.strftime("%Y-%m-%d_%H%M")
+    )
     print("---------------- Training on provided split (QM9) ----------------")
     for y_idx, targ in enumerate(TASKS):  # Solve each one at a time...
         if 0 <= specific_task != y_idx:
@@ -143,9 +146,9 @@ def run_model_gr(
                     best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
                     best_val_mse = val_mse
 
-                writer.add_scalar('Train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
-                writer.add_scalar('Val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
-                writer.add_scalar('Test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                writer.add_scalar(rerun_str + '/train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
+                writer.add_scalar(rerun_str + '/val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
+                writer.add_scalar(rerun_str + '/test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
                 writer.flush()
 
                 if neptune_client is not None:
