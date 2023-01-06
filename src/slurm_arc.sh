@@ -2,8 +2,8 @@
 #SBATCH --job-name=spnv2
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
-#SBATCH --time=40:00:00
-#SBATCH --partition=medium
+#SBATCH --time=200:00:00
+#SBATCH --partition=long
 # must be on htc, only one w/ GPUs
 #SBATCH --clusters=htc
 # set number of GPUs
