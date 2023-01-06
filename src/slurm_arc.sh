@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=spn_rmpy
+#SBATCH --job-name=spn_rmpsh
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=12:00:00
@@ -14,4 +14,4 @@ module load CUDA
 source activate $DATA/spn2
 nvcc --version
 python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-python run_main.py
+python run_main_py.sh
