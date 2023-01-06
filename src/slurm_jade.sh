@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=spnrepeat
+#SBATCH --job-name=spnv2
 #SBATCH --nodes=1
 # # SBATCH --ntasks-per-node=24
 #SBATCH --time=144:00:00
@@ -15,3 +15,5 @@ source activate spn
 # nvcc --version
 # python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 python3.9 main.py -d QM9 -m SP_RSUM_WEIGHT --max_distance 10 --num_layers 8 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 128 --batch_size 128 --epochs 500 --nb_reruns 5
+
+# # sbatch --array=7-12 slurm_jade.sh
