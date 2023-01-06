@@ -1,12 +1,10 @@
 #! /bin/bash
-#SBATCH --job-name=med_spn
+#SBATCH --job-name=spn
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --time=24:00:00
-#SBATCH --partition=medium
-# must be on htc, only one w/ GPUs
+#SBATCH --time=06:00:00
+#SBATCH --partition=short
 #SBATCH --clusters=htc
-# set number of GPUs
 #SBATCH --gres=gpu:1
 #SBATCH --verbose
 
