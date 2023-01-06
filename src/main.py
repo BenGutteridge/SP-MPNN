@@ -156,8 +156,8 @@ BATCH = args.batch_size
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 root_dir = osp.join(osp.dirname(osp.realpath(__file__)), "..")
 
-print('ARGS:\n', args)
-print('Device: ', device)
+print('ARGS:\n', args, flush=True)
+print('Device: ', device, flush=True)
 
 if args.mode == "gc":  # Graph Classification
     dataset, second_return, ogb_metric = get_dataset(args, root_dir)
@@ -236,7 +236,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
     nb_reruns = args.nb_reruns
     specific_task = args.specific_task
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print('Number of parameters: ', num_params)
+    print('Number of parameters: ', num_params, flush=True)
     hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('SP') else 'rbar=%02d' % args.rbar
     run_name = args.dataset + '_' + args.model + '_' + hop_info_str
     if neptune_client:

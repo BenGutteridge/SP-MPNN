@@ -169,7 +169,7 @@ def run_model_gr(
                     "Val Loss: {:.7f}, Test MAE: {:.7f}, Time: {:.1f}".format(
                         epoch, lr, train_mse, val_mse, test_mae, time.time() - start_t
                     )
-                )
+                , flush=True)
 
             all_test_mae[rerun] = test_mae
             all_val_mae[rerun] = best_val_mae
