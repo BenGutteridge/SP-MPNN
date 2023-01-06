@@ -14,4 +14,4 @@ module load CUDA
 source activate $DATA/spn2
 nvcc --version
 python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-python run_main_py.sh
+bash run_main_py.sh
