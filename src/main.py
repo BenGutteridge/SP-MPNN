@@ -11,7 +11,7 @@ from experiments.run_gc import run_model_gc
 from experiments.run_gc_ogb import run_model_gc_ogb
 from experiments.run_gr import run_model_gr
 
-print('Running main.py')
+print('Running main.py', flush=True)
 
 def str2bool(v):
     if v.lower() in ("yes", "true", "t", "y", "1"):
