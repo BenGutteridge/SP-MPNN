@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=spn
+#SBATCH --job-name=spn_rmpy
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=12:00:00
