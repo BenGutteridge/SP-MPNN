@@ -43,7 +43,7 @@ CHEMICAL_ACC_NORMALISING_FACTORS = [
 def train(model, loader, optimizer, loss_fun, device="cpu", y_idx=0):
     model.train()
     loss_all = 0
-
+    print(device)
     for data in loader:
         data = data.to(device)
         optimizer.zero_grad()
@@ -58,7 +58,7 @@ def train(model, loader, optimizer, loss_fun, device="cpu", y_idx=0):
 def val(model, loader, loss_fun, device="cpu", y_idx=0):
     model.eval()
     loss_all = 0
-
+    print(device)
     for data in loader:
         data = data.to(device)
         loss_all += loss_fun(model(data), data.y[:, y_idx : y_idx + 1]).item()
@@ -69,7 +69,7 @@ def val(model, loader, loss_fun, device="cpu", y_idx=0):
 def test(model, loader, device="cpu", y_idx=0):
     model.eval()
     total_err = 0
-
+    print(device)
     for data in loader:
         data = data.to(device)
         pred = torch.sum(torch.abs(model(data) - data.y[:, y_idx : y_idx + 1])).item()
@@ -139,6 +139,7 @@ def run_model_gr(
                 train_mse = train(
                     model, train_loader, optimizer, loss_fun, device=device, y_idx=y_idx
                 )
+                print('train: ', time.time()-start_t)
                 val_mse = val(model, val_loader, loss_fun, device=device, y_idx=y_idx)
                 # scheduler.step(val_mse_sum)
                 if best_val_mse >= val_mse:  # Improvement in validation loss
