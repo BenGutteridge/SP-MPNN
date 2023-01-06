@@ -260,3 +260,5 @@ if neptune_client:
     neptune_client.stop()
     # Sleep for final neptune sync
     time.sleep(10)
+
+print('Done.', flush=True)
