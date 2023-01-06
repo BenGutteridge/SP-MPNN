@@ -140,30 +140,30 @@ def run_model_gr(
                 train_mse = train(
                     model, train_loader, optimizer, loss_fun, device=device, y_idx=y_idx
                 )
-                print('train() - %ds' % time.time()-t0)
+                print('train() - %.2fs' % time.time()-t0)
                 t0 = time.time()
                 val_mse = val(model, val_loader, loss_fun, device=device, y_idx=y_idx)
-                print('val() - %ds' % time.time()-t0)
+                print('val() - %.2fs' % time.time()-t0)
                 # scheduler.step(val_mse_sum)
                 t0 = time.time()
                 if best_val_mse >= val_mse:  # Improvement in validation loss
                     test_mae = test(model, test_loader, device=device, y_idx=y_idx)
                     best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
                     best_val_mse = val_mse
-                print('improvement, test() x2, test and val loaders - %ds' % time.time()-t0)
+                print('improvement, test() x2, test and val loaders - %.2fs' % time.time()-t0)
 
                 t0 = time.time()
                 writer.add_scalar(rerun_str + '/train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
-                print('writer.add_scalar() - %ds' % time.time()-t0)
+                print('writer.add_scalar() - %.2fs' % time.time()-t0)
                 t0 = time.time()
                 writer.add_scalar(rerun_str + '/val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
-                print('writer.add_scalar() - %ds' % time.time()-t0)
+                print('writer.add_scalar() - %.2fs' % time.time()-t0)
                 t0 = time.time()
                 writer.add_scalar(rerun_str + '/test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
-                print('writer.add_scalar() - %ds' % time.time()-t0)
+                print('writer.add_scalar() - %.2fs' % time.time()-t0)
                 t0 = time.time()
                 writer.flush()
-                print('writer.flush() - %ds' % time.time()-t0)
+                print('writer.flush() - %.2fs' % time.time()-t0)
 
                 print('neptune_client:', neptune_client)
 
