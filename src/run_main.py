@@ -136,16 +136,16 @@ my_args = [
     # "-m DeLite-SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
     "-m SP_RSUM_WEIGHT",
     # "-m SP_RSUM_WEIGHT",
-    "--max_distance 1",     # K, I think
-    "--num_layers 1",
+    "--max_distance 10",     # K, I think
+    "--num_layers 8",
     "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
-    "--epochs 3",
-    "--batch_size 512",
-    "--nb_reruns 1",        # number of times to repeat the experiment
+    "--epochs 500",
+    "--batch_size 128",
+    "--nb_reruns 5",        # number of times to repeat the experiment
     "--use_neptune False",
     "--neptune_name test_run",
-    "--emb_dim 8",
+    "--emb_dim 128",
 ]
 my_args = ' '.join(my_args)
 ####
