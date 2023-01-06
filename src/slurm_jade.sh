@@ -1,9 +1,9 @@
 #! /bin/bash
-#SBATCH --job-name=spn
+#SBATCH --job-name=spnrepeat
 #SBATCH --nodes=1
 # # SBATCH --ntasks-per-node=24
-#SBATCH --time=00:20:00
-#SBATCH --partition=devel
+#SBATCH --time=144:00:00
+#SBATCH --partition=small
 # must be on htc, only one w/ GPUs
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-gpu=1
@@ -14,4 +14,4 @@ source $condaDotFile
 source activate spn
 # nvcc --version
 # python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --max_distance 1 --num_layers 2 --specific_task -1 --mode gr --emb_dim 16 --batch_size 128 --epochs 2 --nb_reruns 1
+python3.9 main.py -d QM9 -m SP_RSUM_WEIGHT --max_distance 10 --num_layers 8 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 128 --batch_size 128 --epochs 500 --nb_reruns 5
