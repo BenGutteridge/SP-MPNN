@@ -43,7 +43,7 @@ CHEMICAL_ACC_NORMALISING_FACTORS = [
 def train(model, loader, optimizer, loss_fun, device="cpu", y_idx=0):
     model.train()
     loss_all = 0
-    print(device)
+
     for data in loader:
         data = data.to(device)
         optimizer.zero_grad()
@@ -58,7 +58,7 @@ def train(model, loader, optimizer, loss_fun, device="cpu", y_idx=0):
 def val(model, loader, loss_fun, device="cpu", y_idx=0):
     model.eval()
     loss_all = 0
-    print(device)
+
     for data in loader:
         data = data.to(device)
         loss_all += loss_fun(model(data), data.y[:, y_idx : y_idx + 1]).item()
@@ -69,7 +69,7 @@ def val(model, loader, loss_fun, device="cpu", y_idx=0):
 def test(model, loader, device="cpu", y_idx=0):
     model.eval()
     total_err = 0
-    print(device)
+
     for data in loader:
         data = data.to(device)
         pred = torch.sum(torch.abs(model(data) - data.y[:, y_idx : y_idx + 1])).item()
@@ -136,21 +136,36 @@ def run_model_gr(
             for epoch in range(1, epochs + 1):
                 start_t = time.time()
                 # lr = scheduler.optimizer.param_groups[0]['lr']  # Same as GC
+                t0 = time.time()
                 train_mse = train(
                     model, train_loader, optimizer, loss_fun, device=device, y_idx=y_idx
                 )
-                print('train: ', time.time()-start_t)
+                print('train() - %ds' % time.time()-t0)
+                t0 = time.time()
                 val_mse = val(model, val_loader, loss_fun, device=device, y_idx=y_idx)
+                print('val() - %ds' % time.time()-t0)
                 # scheduler.step(val_mse_sum)
+                t0 = time.time()
                 if best_val_mse >= val_mse:  # Improvement in validation loss
                     test_mae = test(model, test_loader, device=device, y_idx=y_idx)
                     best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
                     best_val_mse = val_mse
+                print('improvement, test() x2, test and val loaders - %ds' % time.time()-t0)
 
+                t0 = time.time()
                 writer.add_scalar(rerun_str + '/train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
+                print('writer.add_scalar() - %ds' % time.time()-t0)
+                t0 = time.time()
                 writer.add_scalar(rerun_str + '/val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
+                print('writer.add_scalar() - %ds' % time.time()-t0)
+                t0 = time.time()
                 writer.add_scalar(rerun_str + '/test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                print('writer.add_scalar() - %ds' % time.time()-t0)
+                t0 = time.time()
                 writer.flush()
+                print('writer.flush() - %ds' % time.time()-t0)
+
+                print('neptune_client:', neptune_client)
 
                 if neptune_client is not None:
                     neptune_client[rerun_str + "/params/lr"].log(lr)
