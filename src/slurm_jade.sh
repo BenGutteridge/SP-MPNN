@@ -12,5 +12,6 @@ module load python/anaconda3
 source $condaDotFile
 source activate spn
 nvcc --version
-python -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-python main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --max_distance 1 --num_layers 2 --specific_task -1 --mode gr --emb_dim 16 --batch_size 128 --epochs 2 --nb_reruns 1
+python3 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+python3 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --max_distance 1 --num_layers 2 --specific_task -1 --mode gr --emb_dim 16 --batch_size 128 --epochs 2 --nb_reruns 1
