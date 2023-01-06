@@ -6,7 +6,7 @@
 #SBATCH --partition=devel
 # must be on htc, only one w/ GPUs
 #SBATCH --gres=gpu:1
-#SBATCH --ntasks-per-gpu=2
+#SBATCH --ntasks-per-gpu=1
 cd /jmain02/home/J2AD008/wga29/bxg10-wga29/SP-MPNN/src
 module load cuda/10.2
 module load python/anaconda3
