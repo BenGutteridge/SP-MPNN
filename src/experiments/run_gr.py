@@ -97,12 +97,10 @@ def run_model_gr(
     specific_task=-1,
     run_name=time.strftime("%Y-%m-%d_%H%M"),
 ):
+    start_time = time.strftime("%Y-%m-%d_%H%M")
     loss_fun = torch.nn.MSELoss(
         reduction="sum"
     )  # Mean-Squared Loss is used for regression
-    writer = SummaryWriter(
-        log_dir='runs/'+run_name+'/'+time.strftime("%Y-%m-%d_%H%M")
-    )
     print("---------------- Training on provided split (QM9) ----------------")
     for y_idx, targ in enumerate(TASKS):  # Solve each one at a time...
         if 0 <= specific_task != y_idx:
@@ -112,7 +110,11 @@ def run_model_gr(
         all_val_mae = np.zeros(nb_reruns,)
 
         for rerun in range(nb_reruns):  # 5 Reruns for GR
+            writer = SummaryWriter(
+                        log_dir='runs/'+run_name+'/'+str(targ)+'/'+start_time+'/'+str(rerun))
             model.reset_parameters()
+            writer.add_scalar('num_params', sum(p.numel() for p in model.parameters() if p.requires_grad), 0)
+            writer.flush()
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
             # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.5)  # Made static
 
@@ -139,7 +141,7 @@ def run_model_gr(
                 train_mse = train(
                     model, train_loader, optimizer, loss_fun, device=device, y_idx=y_idx
                 )
-                if epoch % 10 == 0:
+                if epoch % 10 == 0 or epoch == 1:
                     val_mse = val(model, val_loader, loss_fun, device=device, y_idx=y_idx)
                     # scheduler.step(val_mse_sum)
                     if best_val_mse >= val_mse:  # Improvement in validation loss
@@ -147,9 +149,10 @@ def run_model_gr(
                         best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
                         best_val_mse = val_mse
 
-                    writer.add_scalar(rerun_str + '/train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
-                    writer.add_scalar(rerun_str + '/val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
-                    writer.add_scalar(rerun_str + '/test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar('train_mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar('val_mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar('test_mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar('train_loss', train_mse, epoch)
                     writer.flush()
 
                     if neptune_client is not None:
@@ -172,6 +175,8 @@ def run_model_gr(
                         )
                     , flush=True)
                 else:
+                    writer.add_scalar('train_loss', train_mse, epoch)
+                    writer.flush()
                     print(
                         "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, Time: {:.1f}".format(
                             epoch, lr, train_mse, time.time() - start_t
@@ -200,3 +205,10 @@ def run_model_gr(
         print("---------------- Final Result ----------------")
         print("Test -- Mean: " + str(avg_test_mae) + ", Std: " + str(std_test_mae))
         print("Validation -- Mean: " + str(avg_val_mae) + ", Std: " + str(std_val_mae))
+        writer = SummaryWriter(
+                        log_dir='runs/'+run_name+'/'+str(targ)+'/'+start_time+'/'+'agg')
+        writer.add_scalar('avg_val_mae', avg_val_mae, epoch)
+        writer.add_scalar('std_val_mae', std_val_mae, epoch)
+        writer.add_scalar('avg_test_mae', avg_test_mae, epoch)
+        writer.add_scalar('std_test_mae', std_test_mae, epoch)
+        writer.flush()
