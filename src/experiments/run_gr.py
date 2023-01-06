@@ -136,56 +136,47 @@ def run_model_gr(
             for epoch in range(1, epochs + 1):
                 start_t = time.time()
                 # lr = scheduler.optimizer.param_groups[0]['lr']  # Same as GC
-                t0 = time.time()
                 train_mse = train(
                     model, train_loader, optimizer, loss_fun, device=device, y_idx=y_idx
                 )
-                print('train() -> %.2fs' % (time.time()-t0))
-                t0 = time.time()
-                val_mse = val(model, val_loader, loss_fun, device=device, y_idx=y_idx)
-                print('val() -> %.2fs' % (time.time()-t0))
-                # scheduler.step(val_mse_sum)
-                t0 = time.time()
-                if best_val_mse >= val_mse:  # Improvement in validation loss
-                    test_mae = test(model, test_loader, device=device, y_idx=y_idx)
-                    best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
-                    best_val_mse = val_mse
-                print('improvement, test() x2, test and val loaders -> %.2fs' % (time.time()-t0))
+                if epoch % 10 == 0:
+                    val_mse = val(model, val_loader, loss_fun, device=device, y_idx=y_idx)
+                    # scheduler.step(val_mse_sum)
+                    if best_val_mse >= val_mse:  # Improvement in validation loss
+                        test_mae = test(model, test_loader, device=device, y_idx=y_idx)
+                        best_val_mae = test(model, val_loader, device=device, y_idx=y_idx)
+                        best_val_mse = val_mse
 
-                t0 = time.time()
-                writer.add_scalar(rerun_str + '/train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
-                print('writer.add_scalar() -> %.2fs' % (time.time()-t0))
-                t0 = time.time()
-                writer.add_scalar(rerun_str + '/val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
-                print('writer.add_scalar() -> %.2fs' % (time.time()-t0))
-                t0 = time.time()
-                writer.add_scalar(rerun_str + '/test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
-                print('writer.add_scalar() -> %.2fs' % (time.time()-t0))
-                t0 = time.time()
-                writer.flush()
-                print('writer.flush() -> %.2fs' % (time.time()-t0))
+                    writer.add_scalar(rerun_str + '/train/mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar(rerun_str + '/val/mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar(rerun_str + '/test/mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                    writer.flush()
 
-                print('neptune_client:', neptune_client)
+                    if neptune_client is not None:
+                        neptune_client[rerun_str + "/params/lr"].log(lr)
+                        neptune_client[rerun_str + "/train/loss"].log(train_mse)
+                        train_mae = test(model, train_loader, device=device, y_idx=y_idx)
+                        neptune_client[rerun_str + "/train/MAE"].log(train_mae)
+                        neptune_client[rerun_str + "/validation/loss"].log(val_mse)
 
-                if neptune_client is not None:
-                    neptune_client[rerun_str + "/params/lr"].log(lr)
-                    neptune_client[rerun_str + "/train/loss"].log(train_mse)
-                    train_mae = test(model, train_loader, device=device, y_idx=y_idx)
-                    neptune_client[rerun_str + "/train/MAE"].log(train_mae)
-                    neptune_client[rerun_str + "/validation/loss"].log(val_mse)
+                        val_mae = test(model, val_loader, device=device, y_idx=y_idx)
+                        neptune_client[rerun_str + "/validation/MAE"].log(val_mae)
+                        neptune_client[rerun_str + "/test/MAE"].log(test_mae)
 
-                    val_mae = test(model, val_loader, device=device, y_idx=y_idx)
-                    neptune_client[rerun_str + "/validation/MAE"].log(val_mae)
-                    neptune_client[rerun_str + "/test/MAE"].log(test_mae)
+                        model.log_hop_weights(neptune_client, rerun_str)
 
-                    model.log_hop_weights(neptune_client, rerun_str)
-
-                print(
-                    "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, "
-                    "Val Loss: {:.7f}, Test MAE: {:.7f}, Time: {:.1f}".format(
-                        epoch, lr, train_mse, val_mse, test_mae, time.time() - start_t
-                    )
-                , flush=True)
+                    print(
+                        "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, "
+                        "Val Loss: {:.7f}, Test MAE: {:.7f}, Time: {:.1f}".format(
+                            epoch, lr, train_mse, val_mse, test_mae, time.time() - start_t
+                        )
+                    , flush=True)
+                else:
+                    print(
+                        "Epoch: {:03d}, LR: {:7f}, Train Loss: {:.7f}, Time: {:.1f}".format(
+                            epoch, lr, train_mse, time.time() - start_t
+                        )
+                    , flush=True)
 
             all_test_mae[rerun] = test_mae
             all_val_mae[rerun] = best_val_mae
