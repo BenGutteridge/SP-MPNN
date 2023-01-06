@@ -2,7 +2,7 @@
 #SBATCH --job-name=spn
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
-#SBATCH --time=12:00:00
+#SBATCH --time=00:30:00
 #SBATCH --partition=devel
 # must be on htc, only one w/ GPUs
 #SBATCH --gres=gpu:1
