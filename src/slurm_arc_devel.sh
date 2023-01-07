@@ -8,6 +8,7 @@
 #SBATCH --clusters=htc
 # set number of GPUs
 #SBATCH --gres=gpu:1
+#SBATCH --account=engs-oxnsg
 cd $DATA/repos/my_SP-MPNN/src
 module load Anaconda3
 module load CUDA
