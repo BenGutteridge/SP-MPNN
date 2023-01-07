@@ -403,9 +403,10 @@ class GIN_HSP_Layer(torch.nn.Module):
         for (name, module) in self._modules.items():
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
-        for x in self.gin_mlp:
-            if hasattr(x, "reset_parameters"):
-                x.reset_parameters()
+        if self.inside_aggr != "rsum":
+            for x in self.gin_mlp:
+                if hasattr(x, "reset_parameters"):
+                    x.reset_parameters()
         if self.inside_aggr[0] == "r":  # Relational model
             for mlp in self.rel_mlps:
                 for x in mlp:

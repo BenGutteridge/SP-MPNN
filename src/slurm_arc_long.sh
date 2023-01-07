@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=spnv2
+#SBATCH --job-name=spnrepro
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=200:00:00
