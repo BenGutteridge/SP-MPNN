@@ -135,13 +135,14 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                     )
                 )
             self.higher_hop_mlps = ModuleList(higher_hop_mlps)
-        self.gin_mlp = instantiate_mlp(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            device=device,
-            final_activation=True,
-            batch_norm=batch_norm,
-        )
+        if inside_aggr != "rsum":
+            self.gin_mlp = instantiate_mlp(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                device=device,
+                final_activation=True,
+                batch_norm=batch_norm,
+            )
 
         self.edgesum_relu = edgesum_relu
         self.eps_val = eps
@@ -411,9 +412,10 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
         for (name, module) in self._modules.items():
             if hasattr(module, "reset_parameters"):
                 module.reset_parameters()
-        for x in self.gin_mlp:
-            if hasattr(x, "reset_parameters"):
-                x.reset_parameters()
+        if self.inside_aggr != "rsum":
+            for x in self.gin_mlp:
+                if hasattr(x, "reset_parameters"):
+                    x.reset_parameters()
         if self.inside_aggr[0] == "r":  # Relational model
             for mlp in self.rel_mlps:
                 for x in mlp:

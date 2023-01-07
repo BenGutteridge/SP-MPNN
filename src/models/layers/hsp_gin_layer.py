@@ -127,13 +127,14 @@ class GIN_HSP_Layer(torch.nn.Module):
                 final_activation=False,
                 batch_norm=batch_norm,
             )
-        self.gin_mlp = instantiate_mlp(
-            in_channels=in_channels,
-            out_channels=out_channels,
-            device=device,
-            final_activation=True,
-            batch_norm=batch_norm,
-        )
+        if inside_aggr != "rsum":
+            self.gin_mlp = instantiate_mlp(
+                in_channels=in_channels,
+                out_channels=out_channels,
+                device=device,
+                final_activation=True,
+                batch_norm=batch_norm,
+            )
 
         self.edgesum_relu = edgesum_relu
         self.eps_val = eps
