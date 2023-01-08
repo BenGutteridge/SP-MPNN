@@ -2,6 +2,8 @@ import torch
 from torch_geometric.loader import DataLoader
 import numpy as np
 import time
+from pathlib import Path
+from os import path as osp
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -96,6 +98,7 @@ def run_model_gr(
     nb_reruns=5, # number of repeats
     specific_task=-1,
     run_name=time.strftime("%Y-%m-%d_%H%M"),
+    slurm_id=None,
 ):
     start_time = time.strftime("%Y-%m-%d_%H%M")
     loss_fun = torch.nn.MSELoss(
@@ -110,8 +113,11 @@ def run_model_gr(
         all_val_mae = np.zeros(nb_reruns,)
 
         for rerun in range(nb_reruns):  # 5 Reruns for GR
+            logdir = osp.join('runs', run_name, str(targ), start_time, str(rerun))
             writer = SummaryWriter(
-                        log_dir='runs/'+run_name+'/'+str(targ)+'/'+start_time+'/'+str(rerun))
+                        log_dir=logdir)
+            if slurm_id is not None and slurm_id is not 'None':
+                Path('runs/%s/slurm-%s' % (run_name, slurm_id)).touch()
             model.reset_parameters()
             writer.add_scalar('num_params', sum(p.numel() for p in model.parameters() if p.requires_grad), 0)
             writer.flush()
