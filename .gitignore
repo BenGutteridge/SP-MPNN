@@ -132,4 +132,5 @@ dmypy.json
 
 data/
 runs/
-results.*/
+results_exp/
+results_paper/
