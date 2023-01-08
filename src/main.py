@@ -245,7 +245,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Number of parameters: ', num_params, flush=True)
     hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('SP') else 'rbar=%02d' % args.rbar
-    hop_info_str += '_bs=%03d_d=%03d__L=%02d' % (args.batch_size, args.emb_dim, args.num_layers)
+    hop_info_str += '_bs=%03d_d=%03d_L=%02d' % (args.batch_size, args.emb_dim, args.num_layers)
     run_name = args.dataset + '_' + args.model + '_' + hop_info_str
     if neptune_client:
         neptune_client["num_params"].log(num_params)
