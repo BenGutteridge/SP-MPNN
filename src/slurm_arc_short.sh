@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=L13d62
+#SBATCH --job-name=L13d62BS256
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=12:00:00
