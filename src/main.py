@@ -1,5 +1,7 @@
 print('Started')
 import time
+import numpy as np
+import random
 import configparser
 print('Running main.py')
 import torch
@@ -136,9 +138,24 @@ parser.add_argument(
     default='None',
 )
 
+parser.add_argument(
+    "--seed",
+    help="Starting seed",
+    type=int,
+    default=-1, # -1 means random
+)
+
 args = parser.parse_args()
 if args.rbar == '-1':
     args.rbar = float('inf')
+
+# SETTING SEED
+if args.seed > 0: # default is -1
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
 
 # works
 neptune_client = None
@@ -262,7 +279,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
         specific_task=specific_task,
         nb_reruns=nb_reruns,
         run_name=run_name,
-        slurm_id=args.slurm_id,
+        args=args,
     )
 
 if neptune_client:

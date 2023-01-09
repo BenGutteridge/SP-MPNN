@@ -319,22 +319,35 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                 self.device
             )  # A [K, N, I] tensor
             # First step: k=1... [B: sums over the R edge types for k=1, accumulating in by_hop_aggregates[0]]
-            for e in range(self.nb_edge_types):
-                edges_direct_t = edge_index.T[ # EDGE_WEIGHTS: num hops (0 for self-loop), EDGE_ATTR: edge type (0 is both an edge type and the default for k!=1 edges)
-                    torch.logical_and(edge_weights == 1, edge_attr == e) # extracts the *1-hop* edges of type t (is ~98% of the edges)
-                ].T 
+            if self.nb_edge_types > 1: # if there are multiple edge types given
+                for t in range(self.nb_edge_types):
+                    edges_direct_t = edge_index.T[ # EDGE_WEIGHTS: num hops (0 for self-loop), EDGE_ATTR: edge type (0 is both an edge type and the default for k!=1 edges)
+                        torch.logical_and(edge_weights == 1, edge_attr == t) # extracts the *1-hop* edges of type t (is ~98% of the edges)
+                    ].T 
+                    if edges_direct_t.numel() != 0: # if there are 1-hop edges of the specified type
+                        values = torch.ones(edges_direct_t.shape[1], dtype=torch.float).to(
+                            self.device
+                        )
+                        transformed_node_emb = self.rel_mlps[t](node_embeddings) # applies Rel- MLP
+                        sparse_adjacency_t = torch.sparse_coo_tensor( # looks like a matrix of all 1s but .dense() shows it is just the adj matrix made from edges_direct_t
+                            edges_direct_t, values, (nb_nodes, nb_nodes)
+                        )
+                        by_hop_aggregates[0, :, :] += torch.sparse.mm( # kth hop aggregation is in by_hop_aggregates[k-1]. 0-hop (self loop) not in by_hop_aggregates 
+                            sparse_adjacency_t, transformed_node_emb # SUM{h_j}
+                        )  # Add
+            else: # if we want to use non R-
+                edges_direct_t = edge_index.T[edge_weights == 1].T # using all edge types
                 if edges_direct_t.numel() != 0: # if there are 1-hop edges of the specified type
                     values = torch.ones(edges_direct_t.shape[1], dtype=torch.float).to(
                         self.device
                     )
-                    transformed_node_emb = self.rel_mlps[e](node_embedding_t) # applies Rel- MLP (current timestep)
+                    transformed_node_emb = self.rel_mlps[t](node_embeddings) # applies Rel- MLP
                     sparse_adjacency_t = torch.sparse_coo_tensor( # looks like a matrix of all 1s but .dense() shows it is just the adj matrix made from edges_direct_t
                         edges_direct_t, values, (nb_nodes, nb_nodes)
                     )
                     by_hop_aggregates[0, :, :] += torch.sparse.mm( # kth hop aggregation is in by_hop_aggregates[k-1]. 0-hop (self loop) not in by_hop_aggregates 
                         sparse_adjacency_t, transformed_node_emb # SUM{h_j}
-                    )  # Add
-            # Second step: k>=2, just like before
+                    )  # Add            # Second step: k>=2, just like before
             higher_hop_mlp = lambda k: self.higher_hop_mlps[k-2] # k=2 is the 1st MLP in higher_hop_mlp
             for k in range(2, t + 2): # *************** DELAY ****************
                 edges = edge_index.T[edge_weights == k].T  # Fetch the edges

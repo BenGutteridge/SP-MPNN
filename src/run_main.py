@@ -1,5 +1,7 @@
 print('run_main.py running')
 import time
+import numpy as np
+import random
 import configparser
 import torch
 print('Loaded torch')
@@ -130,6 +132,20 @@ parser.add_argument(
     default=1,
 )
 
+parser.add_argument(
+    "--slurm_id",
+    help="slurm id if there is one",
+    type=str,
+    default='None',
+)
+
+parser.add_argument(
+    "--seed",
+    help="Starting seed",
+    type=int,
+    default=-1, # -1 means random
+)
+
 ####
 my_args = [
     "-d QM9",
@@ -146,12 +162,24 @@ my_args = [
     "--use_neptune False",
     "--neptune_name test_run",
     "--emb_dim 64",
+    "--dropout 0.0",
+    "--scatter mean",
+    "--seed 0",
+    
 ]
 my_args = ' '.join(my_args)
 ####
 args = parser.parse_args(my_args.split())
 if args.rbar == '-1':
     args.rbar = float('inf')
+
+# SETTING SEED
+if args.seed > 0: # default is -1
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    torch.cuda.manual_seed_all(args.seed)
 
 # works
 neptune_client = None
@@ -274,6 +302,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
         specific_task=specific_task,
         nb_reruns=nb_reruns,
         run_name=run_name,
+        args=args,
     )
 
 if neptune_client:

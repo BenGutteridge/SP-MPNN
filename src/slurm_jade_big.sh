@@ -14,6 +14,6 @@ source $condaDotFile
 source activate spn
 # nvcc --version
 # python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-python3.9 main.py -d QM9 -m SP_RSUM_WEIGHT --max_distance 10 --num_layers 8 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 64 --batch_size 256 --epochs 300 --nb_reruns 5 --dropout 0.0 --layer_norm False
+python3.9 main.py -d QM9 -m SP_RSUM_WEIGHT --max_distance 10 --num_layers 8 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 128 --batch_size 128 --epochs 300 --nb_reruns 3 --scatter mean --dropout 0.0 --layer_norm False --seed 0
 
 # # sbatch --array=0-12 slurm_jade_big.sh

@@ -97,8 +97,9 @@ def run_model_gr(
     nb_reruns=5, # number of repeats
     specific_task=-1,
     run_name=time.strftime("%Y-%m-%d_%H%M"),
-    slurm_id=None,
+    args=None,
 ):
+    slurm_id, seed = args.slurm_id, args.seed
     start_time = time.strftime("%m-%d_%H%M")
     loss_fun = torch.nn.MSELoss(
         reduction="sum"
@@ -113,15 +114,18 @@ def run_model_gr(
 
         for rerun in range(nb_reruns):  # 5 Reruns for GR
             if slurm_id is not None and slurm_id is not 'None':
-                id = '%s-slurm_id-%s' % (start_time, slurm_id)
+                id = '%s-slurm_id' % slurm_id
             else:
                 id = start_time
-            logdir = osp.join('runs', run_name, str(targ), id, str(rerun))
+            seed_run = '%02d-%d' % (seed, rerun)
+            logdir = osp.join('runs', run_name, str(targ), id, seed_run)
             writer = SummaryWriter(
                         log_dir=logdir)
             model.reset_parameters()
             writer.add_scalar('num_params', sum(p.numel() for p in model.parameters() if p.requires_grad), 0)
             writer.flush()
+            with open(osp.join(logdir, "config.txt"), "w") as file:
+                file.write(str(args).replace(",", ",\n" ) + '\ndevice: %s' % device)
             optimizer = torch.optim.Adam(model.parameters(), lr=lr)
             # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.5)  # Made static
 
@@ -137,6 +141,7 @@ def run_model_gr(
                 + str(targ)
                 + ": Re-run {} ----------------".format(rerun)
             )
+            print('Saving runs to %s' % logdir)
 
             best_val_mse = 100000
             test_mae = 100
@@ -158,7 +163,7 @@ def run_model_gr(
 
                     writer.add_scalar('train_mae', test(model, train_loader, device=device, y_idx=y_idx), epoch)
                     writer.add_scalar('val_mae', test(model, val_loader, device=device, y_idx=y_idx), epoch)
-                    writer.add_scalar('test_mae', test(model, test_loader, device=device, y_idx=y_idx), epoch)
+                    writer.add_scalar('test_mae', test_mae, epoch)
                     writer.add_scalar('train_loss', train_mse, epoch)
                     writer.flush()
 
