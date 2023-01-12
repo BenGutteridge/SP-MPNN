@@ -328,7 +328,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                         values = torch.ones(edges_direct_t.shape[1], dtype=torch.float).to(
                             self.device
                         )
-                        transformed_node_emb = self.rel_mlps[t](node_embeddings) # applies Rel- MLP
+                        transformed_node_emb = self.rel_mlps[t](node_embedding_t) # applies Rel- MLP
                         sparse_adjacency_t = torch.sparse_coo_tensor( # looks like a matrix of all 1s but .dense() shows it is just the adj matrix made from edges_direct_t
                             edges_direct_t, values, (nb_nodes, nb_nodes)
                         )
@@ -341,7 +341,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                     values = torch.ones(edges_direct_t.shape[1], dtype=torch.float).to(
                         self.device
                     )
-                    transformed_node_emb = self.rel_mlps[t](node_embeddings) # applies Rel- MLP
+                    transformed_node_emb = self.rel_mlps[0](node_embedding_t) # applies Rel- MLP
                     sparse_adjacency_t = torch.sparse_coo_tensor( # looks like a matrix of all 1s but .dense() shows it is just the adj matrix made from edges_direct_t
                         edges_direct_t, values, (nb_nodes, nb_nodes)
                     )

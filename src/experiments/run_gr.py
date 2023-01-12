@@ -113,9 +113,11 @@ def run_model_gr(
         all_val_mae = np.zeros(nb_reruns,)
 
         for rerun in range(nb_reruns):  # 5 Reruns for GR
-            if slurm_id is not None and slurm_id is not 'None':
+            if slurm_id is not None and slurm_id != 'None':
+                print('Using slurm id: %s' % slurm_id)
                 id = '%s-slurm_id' % slurm_id
             else:
+                print('Not using slurm-id: slurm_id = %s' % str(slurm_id))
                 id = start_time
             seed_run = '%02d-%d' % (seed, rerun)
             logdir = osp.join('runs', run_name, str(targ), id, seed_run)
