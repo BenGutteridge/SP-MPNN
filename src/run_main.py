@@ -157,15 +157,16 @@ my_args = [
     "--num_layers 8",
     "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
-    "--epochs 500",
+    "--epochs 1",
     "--batch_size 128",
     "--nb_reruns 5",        # number of times to repeat the experiment
     "--use_neptune False",
     "--neptune_name test_run",
-    "--emb_dim 64",
+    "--emb_dim 8",
     "--dropout 0.0",
     "--scatter mean",
     "--seed 0",
+    "--slurm_id 0123456",
     
 ]
 my_args = ' '.join(my_args)
