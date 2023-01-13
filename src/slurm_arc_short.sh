@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=r*inf_L11
+#SBATCH --job-name=r*1_L11
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=12:00:00
