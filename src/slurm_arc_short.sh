@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=r*inf_L8_bs256
+#SBATCH --job-name=r*inf_L8_restart
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=24
 #SBATCH --time=12:00:00
