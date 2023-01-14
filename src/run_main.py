@@ -133,7 +133,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--slurm_id",
+    "--run_id",
     help="slurm id if there is one",
     type=str,
     default='None',
@@ -157,7 +157,7 @@ my_args = [
     "--num_layers 3",
     "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
-    "--epochs 1",
+    "--epochs 3",
     "--batch_size 128",
     "--nb_reruns 1",        # number of times to repeat the experiment
     "--use_neptune False",
@@ -166,7 +166,7 @@ my_args = [
     "--dropout 0.0",
     "--scatter mean",
     "--seed 0",
-    # "--slurm_id 0123456",
+    "--run_id test_run",
     
 ]
 my_args = ' '.join(my_args)

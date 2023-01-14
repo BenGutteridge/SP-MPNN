@@ -132,7 +132,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--slurm_id",
+    "--run_id",
     help="slurm id if there is one",
     type=str,
     default='None',

@@ -2,6 +2,7 @@ import torch
 from torch_geometric.loader import DataLoader
 import numpy as np
 import time
+import os
 from os import path as osp
 from tqdm import tqdm
 
@@ -121,7 +122,7 @@ def run_model_gr(
     run_name=time.strftime("%Y-%m-%d_%H%M"),
     args=None,
 ):
-    slurm_id, seed = args.slurm_id, args.seed
+    run_id, seed = args.run_id, args.seed
     start_time = time.strftime("%m-%d_%H%M")
     loss_fun = torch.nn.MSELoss(
         reduction="sum"
@@ -135,11 +136,12 @@ def run_model_gr(
         all_val_mae = np.zeros(nb_reruns,)
 
         for rerun in range(nb_reruns):  # 5 Reruns for GR
-            if slurm_id is not None and slurm_id != 'None':
-                print('Using slurm id: %s' % slurm_id)
-                id = '%s-slurm_id' % slurm_id
+            if run_id is not None and run_id != 'None':
+                print('Using run id: %s' % run_id)
+                # id = '%s-run_id' % run_id
+                id = run_id
             else:
-                print('Not using slurm-id: slurm_id = %s' % str(slurm_id))
+                print('Not using given run id: run_id = %s' % str(run_id))
                 id = start_time
             seed_run = '%02d-%d' % (seed, rerun)
             logdir = osp.join('runs', run_name, str(targ), id, seed_run)
@@ -171,7 +173,24 @@ def run_model_gr(
             test_mae = 100
             best_val_mae = 100000
 
-            for epoch in range(1, epochs + 1):
+            # load from saved model if there is one present
+            dictfiles = []
+            for file in os.listdir(logdir):
+                if file.endswith('.pt'):
+                    dictfiles.append(file)
+            if len(dictfiles) > 0:
+                dictfile = sorted(dictfiles)[-1]
+                start_epoch = int(dictfile[-6:-3])
+                model.load_state_dict(torch.load(osp.join(logdir, dictfile)))
+                print('model statedict file found at %s\nTraining from epoch %03d' % (logdir, start_epoch))
+            else:
+                start_epoch = 0
+            
+            for epoch in range(start_epoch, epochs + 1):
+                if epoch % 50 == 0 and epoch != 0:
+                    filepath = osp.join(logdir, 'model_e=%03d.pt' % epoch)
+                    print('Saving model statedict file at %s' % filepath)
+                    torch.save(model.state_dict(), filepath)
                 start_t = time.time()
                 # lr = scheduler.optimizer.param_groups[0]['lr']  # Same as GC
                 train_mse = train(
