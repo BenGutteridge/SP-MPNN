@@ -6,6 +6,8 @@ from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from models.layers.hsp_gin_layer import instantiate_mlp
 from models.layers import DeLite_GIN_HSP_Layer, Delay_GIN_HSP_Layer
 
+from .hsp_gin import dirichlet, get_laplacian
+import numpy as np
 
 # Modes: GC: Graph Classification.
 GRAPH_CLASS = "gc"
@@ -218,7 +220,7 @@ class NetHSP_Delay_GIN(torch.nn.Module):
         else:
             pass
 
-    def forward(self, data):
+    def forward(self, data, dirichlet_energy=False):
         x_feat = data.x.to(self.device)
         edge_index = data.edge_index.to(self.device)
         edge_weights = data.edge_weights.to(self.device)
@@ -339,6 +341,11 @@ class NetHSP_Delay_GIN(torch.nn.Module):
                     # Otherwise Layer Norm freezes
                 else:
                     x_feat = torch.relu(x_feat)
+
+        if dirichlet_energy:
+            L = get_laplacian(edge_index.T[edge_weights == 1].T)
+            energies = [dirichlet(x, L) for x in xs+[x_feat]]
+            return np.array(energies)
 
         if self.mode == GRAPH_CLASS or (self.mode == GRAPH_REG and self.pool_gc):
             return out

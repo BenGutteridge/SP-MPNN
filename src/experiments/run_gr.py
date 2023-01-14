@@ -3,6 +3,7 @@ from torch_geometric.loader import DataLoader
 import numpy as np
 import time
 from os import path as osp
+from tqdm import tqdm
 
 from torch.utils.tensorboard import SummaryWriter
 
@@ -79,6 +80,27 @@ def test(model, loader, device="cpu", y_idx=0):
     return total_err / (
         len(loader.dataset) * CHEMICAL_ACC_NORMALISING_FACTORS[y_idx]
     )  # Introduce norm factors
+
+
+def test_dirichlet(model, loader, num_layers, device="cpu"):
+    """does a run through the test dataset returning only the per-layer dirichlet energies"""
+    model.eval()
+    num_graphs = get_num_graphs(loader)
+    energies = np.zeros(num_layers+1)
+    for data in tqdm(loader):
+        data = data.to(device)
+        energies += model(data, dirichlet_energy=True)
+    energies /= num_graphs
+    print('Dirichlet energies:')
+    for l, de in enumerate(list(energies)):
+        print('After %02d layers: %.4f' % (l, de))
+    return energies
+
+def get_num_graphs(loader):
+    num = 0
+    for l in loader:
+        num += l.y.shape[0]
+    return num
 
 
 # Treat every target separately. So you're effectively training 13 times. <- their note not mine
@@ -196,6 +218,11 @@ def run_model_gr(
                             epoch, lr, train_mse, time.time() - start_t
                         )
                     , flush=True)
+
+            # dirichlet
+            dirichlet_energies = test_dirichlet(model, test_loader, args.num_layers, device=device)
+            for t, E in enumerate(dirichlet_energies):
+                writer.add_scalar('dirichlet_energy', E, t)
 
             all_test_mae[rerun] = test_mae
             all_val_mae[rerun] = best_val_mae

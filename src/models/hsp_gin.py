@@ -209,7 +209,7 @@ class NetHSP_GIN(torch.nn.Module):
         else:
             pass
 
-    def forward(self, data):
+    def forward(self, data, dirichlet_energy=False):
         x_feat = data.x.to(self.device)
         edge_index = data.edge_index.to(self.device)
         edge_weights = data.edge_weights.to(self.device)
@@ -259,6 +259,11 @@ class NetHSP_GIN(torch.nn.Module):
 
         if self.residual_freq > 0:
             last_state_list = [x_feat]  # If skip connections are being used
+        
+        if dirichlet_energy:
+            L = get_laplacian(edge_index.T[edge_weights == 1].T)
+            energies = [dirichlet(x_feat, L)]
+    
         for idx, value in enumerate(zip(self.hsp_modules, self.linear_modules)): # each layer
             hsp_layer, linear_layer = value
             if (
@@ -284,6 +289,8 @@ class NetHSP_GIN(torch.nn.Module):
                     edge_attr = data.edge_attr.to(self.device)
             else:
                 edge_embeddings = None
+
+            # model.forward
             x_feat = hsp_layer( # ************************************************************ IMPORTANT BIT: goes through all the layers
                 node_embeddings=x_feat,
                 edge_index=edge_index,
@@ -324,6 +331,13 @@ class NetHSP_GIN(torch.nn.Module):
                     # Otherwise Layer Norm freezes
                 else:
                     x_feat = torch.relu(x_feat)
+            
+            # dirichlet energy
+            if dirichlet_energy:
+                energies.append(dirichlet(x_feat, L))
+        
+        if dirichlet_energy:
+            return np.array(energies)
 
         if self.mode == GRAPH_CLASS or (self.mode == GRAPH_REG and self.pool_gc):
             return out
@@ -349,3 +363,47 @@ class NetHSP_GIN(torch.nn.Module):
                         exp_dir + "/conv_" + str(i) + "/" + "soft_weight_" + str(d)
                     )
                     neptune_client[soft_log_dir].log(sv)
+
+
+# FOR DIRICHLET ENERGY
+
+import numpy as np
+import torch_geometric as pyg
+
+def dirichlet(x, L):
+    """takes in list of node features (nxd) 
+    at each layer and outputs array of dirichlet energies"""
+    x = tonp(x)
+    assert x.shape[0] == L.shape[0] == L.shape[1]
+    # print('x: ', type(x))
+    # print('L: ', type(L))
+    E = np.dot(np.dot(x.T, L), x)
+    E = np.trace(E) / np.linalg.norm(x, ord='fro')**2
+    return E
+
+def get_laplacian(edge_index):
+    L = pyg.utils.get_laplacian(edge_index, normalization='sym')[0]
+    L = pyg.utils.to_dense_adj(L).squeeze() # from index format to matrix
+    return tonp(L)
+
+def tonp(tsr):
+    if isinstance(tsr, np.ndarray):
+        return tsr
+    elif isinstance(tsr, np.matrix):
+        return np.array(tsr)
+    # elif isinstance(tsr, scipy.sparse.csc.csc_matrix):
+    #     return np.array(tsr.todense())
+
+    assert isinstance(tsr, torch.Tensor)
+    tsr = tsr.cpu()
+    assert isinstance(tsr, torch.Tensor)
+
+    try:
+        arr = tsr.numpy()
+    except TypeError:
+        arr = tsr.detach().to_dense().numpy()
+    except:
+        arr = tsr.detach().numpy()
+
+    assert isinstance(arr, np.ndarray)
+    return arr
