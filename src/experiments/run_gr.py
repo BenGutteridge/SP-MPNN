@@ -185,10 +185,6 @@ def run_model_gr(
                 print('model statedict file found at %s\nTraining from epoch %03d' % (logdir, start_epoch))
             else:
                 start_epoch = 0
-            
-            # DELETE ME
-            if rerun==0:
-                start_epoch=299
 
             for epoch in range(start_epoch, epochs + 1):
                 if epoch % 50 == 0 and epoch != 0:
