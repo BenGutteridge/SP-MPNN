@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=L14s1allr*
+#SBATCH --job-name=rinfL10s15
 #SBATCH --nodes=1
 # # SBATCH --ntasks-per-node=24
 #SBATCH --time=72:00:00
@@ -14,8 +14,10 @@ source $condaDotFile
 source activate spn
 # nvcc --version
 # python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
-python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar 1 --num_layers 14 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 58 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 1 --pool_gc True --run_id time_0115_1735
-python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar -1 --num_layers 14 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 58 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 1 --pool_gc True --run_id time_0115_1735
-python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar 7 --num_layers 14 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 58 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 1 --pool_gc True --run_id time_0115_1735
+
+python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar -1 --num_layers 10 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 78 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 15 --pool_gc True --run_id time_0116_1234
+# python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar 5 --num_layers 10 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 78 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 15 --pool_gc True --run_id time_0116_1234
+# python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar 1 --num_layers 12 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 66 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 15 --pool_gc True --run_id time_0116_1234
+
 
 # # sbatch --array=0-12 slurm_jade.sh
