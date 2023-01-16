@@ -135,7 +135,7 @@ def run_model_gr(
         all_test_mae = np.zeros(nb_reruns,)
         all_val_mae = np.zeros(nb_reruns,)
 
-        for rerun in range(1, nb_reruns):  # 5 Reruns for GR
+        for rerun in range(nb_reruns):  # 5 Reruns for GR
             if run_id is not None and run_id != 'None':
                 print('Using run id: %s' % run_id)
                 # id = '%s-run_id' % run_id
@@ -186,6 +186,10 @@ def run_model_gr(
             else:
                 start_epoch = 0
             
+            # DELETE ME
+            if rerun==0:
+                start_epoch=299
+
             for epoch in range(start_epoch, epochs + 1):
                 if epoch % 50 == 0 and epoch != 0:
                     filepath = osp.join(logdir, 'model_e=%03d.pt' % epoch)
