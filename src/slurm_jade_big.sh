@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=r*5_stragglers
+#SBATCH --job-name=r*1L10s13
 #SBATCH --nodes=1
 # # SBATCH --ntasks-per-node=24
 #SBATCH --time=24:00:00
