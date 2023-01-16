@@ -135,7 +135,7 @@ def run_model_gr(
         all_test_mae = np.zeros(nb_reruns,)
         all_val_mae = np.zeros(nb_reruns,)
 
-        for rerun in range(nb_reruns):  # 5 Reruns for GR
+        for rerun in range(1, nb_reruns):  # 5 Reruns for GR
             if run_id is not None and run_id != 'None':
                 print('Using run id: %s' % run_id)
                 # id = '%s-run_id' % run_id
