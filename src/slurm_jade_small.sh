@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=r1L12s15
+#SBATCH --job-name=r4L8s2
 #SBATCH --nodes=1
 # # SBATCH --ntasks-per-node=24
 #SBATCH --time=72:00:00
@@ -13,6 +13,8 @@ module load python/anaconda3
 source $condaDotFile
 source activate spn
 # nvcc --version
+python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar 4 --num_layers 8 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 95 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 2 --pool_gc True --run_id time_0118_0918
+
 # python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 
 # python3.9 main.py -d QM9 -m Delay-SP_RSUM_WEIGHT --rbar -1 --num_layers 10 --specific_task $SLURM_ARRAY_TASK_ID --mode gr --emb_dim 78 --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed 15 --pool_gc True --run_id time_0116_1234
