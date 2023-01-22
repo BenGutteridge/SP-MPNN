@@ -1,5 +1,5 @@
 #! /bin/bash
-#SBATCH --job-name=DEqDRew
+#SBATCH --job-name=DEqgcn
 #SBATCH --nodes=1
 # # SBATCH --ntasks-per-node=24
 #SBATCH --time=24:00:00
@@ -15,9 +15,9 @@ source activate spn
 # nvcc --version
 # python3.9 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
 
-model='Delay-SP_RSUM_WEIGHT'
+# model='Delay-SP_RSUM_WEIGHT'
 # model='SP_RSUM_WEIGHT'
-# model=GCN
+model=GCN
 seed=$1
 d=64
 
