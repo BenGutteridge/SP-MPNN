@@ -242,6 +242,7 @@ def run_model_gr(
             dirichlet_energies = test_dirichlet(model, test_loader, args.num_layers, device=device)
             for t, E in enumerate(dirichlet_energies):
                 writer.add_scalar('dirichlet_energy', E, t)
+            np.savetxt(os.path.join(logdir, "dirichlet.csv"), dirichlet_energies, delimiter=",")
 
             all_test_mae[rerun] = test_mae
             all_val_mae[rerun] = best_val_mae
