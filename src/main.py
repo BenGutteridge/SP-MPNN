@@ -125,8 +125,8 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--rbar",
-    help="rbar",
+    "--nu",
+    help="nu",
     type=int,
     default=1,
 )
@@ -146,8 +146,8 @@ parser.add_argument(
 )
 
 args = parser.parse_args()
-if args.rbar == '-1':
-    args.rbar = float('inf')
+if args.nu == '-1':
+    args.nu = float('inf')
 
 # SETTING SEED
 if args.seed > 0: # default is -1
@@ -261,7 +261,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
     specific_task = args.specific_task
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Number of parameters: ', num_params, flush=True)
-    hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('SP') else 'rbar=%02d' % args.rbar
+    hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('SP') else 'nu=%02d' % args.nu
     hop_info_str += '_bs=%03d_d=%03d_L=%02d' % (args.batch_size, args.emb_dim, args.num_layers)
     run_name = args.dataset + '_' + args.model + '_' + hop_info_str
     if neptune_client:

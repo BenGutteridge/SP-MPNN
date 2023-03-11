@@ -97,7 +97,7 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
             print('Using Delay-R-SPN model')
 
         model = NetHSP_Delay_GIN( # generic model with all of their own stuff implemented in it
-            args.rbar,
+            args.nu,
             num_features,
             num_classes,
             emb_sizes=emb_sizes, # list of length n_layers+1 with hidden dims I think

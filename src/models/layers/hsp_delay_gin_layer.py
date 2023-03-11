@@ -64,7 +64,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
     def __init__(
         self,
         t,      # ****************** t: the layer *******
-        rbar,   # ****************** rbar ***************
+        nu,   # ****************** nu ***************
         in_channels,
         out_channels,
         max_distance,
@@ -97,7 +97,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
         self.max_distance = max_distance
         self.nb_edge_types = nb_edge_types
         self.dataset = dataset
-        self.rbar = rbar
+        self.nu = nu
 
         # The aggregation function of the neighbours on each level
         if (
@@ -358,7 +358,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                     sparse_adjacency_k = torch.sparse_coo_tensor(
                         edges, values, (nb_nodes, nb_nodes)
                     )  # [N,N] SpTensor
-                    delay = int(max(0, k - self.rbar))
+                    delay = int(max(0, k - self.nu))
                     by_hop_aggregates[k - 1, :, :] = torch.sparse.mm(
                         sparse_adjacency_k, 
                         higher_hop_mlp(k)(node_embeddings[t-delay])

@@ -17,7 +17,7 @@ GRAPH_REG = "gr"
 class NetHSP_Delay_GIN(torch.nn.Module):
     def __init__(
         self,
-        rbar,
+        nu,
         num_features,
         num_classes,
         emb_sizes=None,
@@ -145,7 +145,7 @@ class NetHSP_Delay_GIN(torch.nn.Module):
         for t in range(self.num_layers):
             hsp_layer = delay_layer(
                 t=t,
-                rbar=rbar,
+                nu=nu,
                 in_channels=emb_sizes[t],
                 out_channels=emb_sizes[t + 1],
                 eps=self.eps,

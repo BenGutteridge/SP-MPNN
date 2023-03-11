@@ -21,6 +21,6 @@ model=GCN
 seed=$1
 d=64
 
-python3.9 main.py -d QM9 -m $model --batch_norm False --layer_norm False --max_distance 10 --rbar 1 --num_layers $SLURM_ARRAY_TASK_ID --specific_task 0 --mode gr --emb_dim $d --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed $seed --pool_gc True --run_id DE_runs
+python3.9 main.py -d QM9 -m $model --batch_norm False --layer_norm False --max_distance 10 --nu 1 --num_layers $SLURM_ARRAY_TASK_ID --specific_task 0 --mode gr --emb_dim $d --batch_size 128 --epochs 300 --nb_reruns 1 --scatter mean --dropout 0.0 --layer_norm False --seed $seed --pool_gc True --run_id DE_runs
 # # sbatch --array=0-12 slurm_jade_big.sh
 
