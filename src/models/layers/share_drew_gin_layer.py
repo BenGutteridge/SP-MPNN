@@ -5,62 +5,11 @@ from torch.nn import ModuleList, Sequential, Embedding
 from torch_geometric.utils import to_dense_adj
 import torch.nn.functional as F
 from torch_scatter import scatter_mean
-
+from .hsp_gin_layer import instantiate_mlp
 
 avail_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-def instantiate_mlp(
-    in_channels,
-    out_channels,
-    device=avail_device,
-    final_activation=True,
-    batch_norm=True,
-):
-    if final_activation:
-        if batch_norm:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    BatchNorm1d(out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                    BatchNorm1d(out_channels).to(device),
-                    ReLU().to(device),
-                ]
-            ).to(device)
-        else:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                    ReLU().to(device),
-                ]
-            ).to(device)
-    else:
-        if batch_norm:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    BatchNorm1d(out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                ]
-            ).to(device)
-        else:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                ]
-            ).to(device)
-
-    return Sequential(*mlp_mods).to(device)
-
-
-class DeLite_GIN_HSP_Layer(torch.nn.Module):
+class Share_DRew_GIN_Layer(torch.nn.Module):
     def __init__(
         self,
         t,      # ****************** t: the layer *******
@@ -90,7 +39,7 @@ class DeLite_GIN_HSP_Layer(torch.nn.Module):
         :param nhead: (For attention outside agg) The number of attention heads
         :param batch_norm: A Boolean specifying whether batch norm is used inside the model MLPs
         """
-        super(DeLite_GIN_HSP_Layer, self).__init__()
+        super(Share_DRew_GIN_Layer, self).__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels

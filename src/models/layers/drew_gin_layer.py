@@ -5,66 +5,15 @@ from torch.nn import ModuleList, Sequential, Embedding
 from torch_geometric.utils import to_dense_adj
 import torch.nn.functional as F
 from torch_scatter import scatter_mean
-
+from .hsp_gin_layer import instantiate_mlp
 
 avail_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-
-def instantiate_mlp(
-    in_channels,
-    out_channels,
-    device=avail_device,
-    final_activation=True,
-    batch_norm=True,
-):
-    if final_activation:
-        if batch_norm:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    BatchNorm1d(out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                    BatchNorm1d(out_channels).to(device),
-                    ReLU().to(device),
-                ]
-            ).to(device)
-        else:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                    ReLU().to(device),
-                ]
-            ).to(device)
-    else:
-        if batch_norm:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    BatchNorm1d(out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                ]
-            ).to(device)
-        else:
-            mlp_mods = ModuleList(
-                [
-                    Linear(in_channels, out_channels).to(device),
-                    ReLU().to(device),
-                    Linear(out_channels, out_channels).to(device),
-                ]
-            ).to(device)
-
-    return Sequential(*mlp_mods).to(device)
-
-
-class Delay_GIN_HSP_Layer(torch.nn.Module):
+class DRew_GIN_Layer(torch.nn.Module):
     def __init__(
         self,
-        t,      # ****************** t: the layer *******
-        nu,   # ****************** nu ***************
+        t,
+        nu,
         in_channels,
         out_channels,
         max_distance,
@@ -90,7 +39,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
         :param nhead: (For attention outside agg) The number of attention heads
         :param batch_norm: A Boolean specifying whether batch norm is used inside the model MLPs
         """
-        super(Delay_GIN_HSP_Layer, self).__init__()
+        super(DRew_GIN_Layer, self).__init__()
 
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -184,7 +133,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
 
         self.outside_aggr = outside_aggr
         if outside_aggr in ["weight", "eps_weight"]:
-            self.hop_coef = torch.nn.Parameter( # ************************ the alpha_k weights for each k-hop (shared MLP_h) - different lenth depending on layer t ***************
+            self.hop_coef = torch.nn.Parameter( # alpha_k weights for each k-hop - variable length depending on t
                 torch.randn(t+1).to(device), requires_grad=True 
             )
             if outside_aggr == "eps_weight":
@@ -194,13 +143,13 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
 
     def forward(
         self,
-        t, # ****************** the layer/timestep ***************
+        t,
         node_embeddings,
         edge_index,
-        edge_weights, # shortest path length??
-        batch=None, # indices for which nodes belong to which graph
+        edge_weights,
+        batch=None,
         edge_attr=None,
-        direct_edge_embs=None, # none for QM9, R_SPN -- used for OGB only (see below)
+        direct_edge_embs=None,
     ):
         """
         :param node_embeddings: A FloatTensor of shape [num_layers, N, In_dim]
@@ -317,8 +266,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                 size=(t+1, nb_nodes, self.in_channels), dtype=torch.float
             ).to(
                 self.device
-            )  # A [K, N, I] tensor
-            # First step: k=1... [B: sums over the R edge types for k=1, accumulating in by_hop_aggregates[0]]
+            )
             if self.nb_edge_types > 1: # if there are multiple edge types given
                 for t in range(self.nb_edge_types):
                     edges_direct_t = edge_index.T[ # EDGE_WEIGHTS: num hops (0 for self-loop), EDGE_ATTR: edge type (0 is both an edge type and the default for k!=1 edges)
@@ -335,7 +283,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                         by_hop_aggregates[0, :, :] += torch.sparse.mm( # kth hop aggregation is in by_hop_aggregates[k-1]. 0-hop (self loop) not in by_hop_aggregates 
                             sparse_adjacency_t, transformed_node_emb # SUM{h_j}
                         )  # Add
-            else: # if we want to use non R-
+            else: # if we don't want to use R-GIN
                 edges_direct_t = edge_index.T[edge_weights == 1].T # using all edge types
                 if edges_direct_t.numel() != 0: # if there are 1-hop edges of the specified type
                     values = torch.ones(edges_direct_t.shape[1], dtype=torch.float).to(
@@ -349,7 +297,7 @@ class Delay_GIN_HSP_Layer(torch.nn.Module):
                         sparse_adjacency_t, transformed_node_emb # SUM{h_j}
                     )  # Add            # Second step: k>=2, just like before
             higher_hop_mlp = lambda k: self.higher_hop_mlps[k-2] # k=2 is the 1st MLP in higher_hop_mlp
-            for k in range(2, t + 2): # *************** DELAY ****************
+            for k in range(2, t + 2):
                 edges = edge_index.T[edge_weights == k].T  # Fetch the edges
                 if edges.numel() != 0:
                     values = torch.ones(edges.shape[1], dtype=torch.float).to(

@@ -1,0 +1,14 @@
+conda create --name drew
+conda install pytorch=1.9.1 torchvision torchaudio -c pytorch -c nvidia   
+conda install pyg=2.0.2 -c pyg -c conda-forge
+pip install ogb
+pip install performer-pytorch
+pip install torchmetrics==0.7.2
+conda install pandas scikit-learn
+conda install openbabel fsspec rdkit -c conda-forge
+pip install tensorboard
+pip install tensorboardX
+pip install neptune-client
+# Check https://www.dgl.ai/pages/start.html to install DGL based on your CUDA requirements
+conda install -c dglteam dgl
+conda install setuptools==58.0.4

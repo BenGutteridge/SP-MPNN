@@ -1,19 +1,14 @@
-print('Started')
 import time
 import numpy as np
 import random
 import configparser
-print('Running main.py')
 import torch
-print('Finished importing torch')
 import argparse
 import os.path as osp
 from utils import get_dataset, get_model
 from experiments.run_gc import run_model_gc
 from experiments.run_gc_ogb import run_model_gc_ogb
 from experiments.run_gr import run_model_gr
-
-print('Running main.py', flush=True)
 
 def str2bool(v):
     if v.lower() in ("yes", "true", "t", "y", "1"):
@@ -23,19 +18,6 @@ def str2bool(v):
     else:
         raise argparse.ArgumentTypeError("Boolean value expected.")
 
-
-# Neptune configuration
-
-# # doesn't work
-# config = configparser.ConfigParser()
-# config.read("config.ini")
-# if config["DEFAULT"]["neptune_token"] and config["DEFAULT"]["neptune_token"] != "...":
-#     neptune_client = neptune.init(
-#         project=config["DEFAULT"]["neptune_project"],
-#         api_token=config["DEFAULT"]["neptune_token"],
-#     )
-# else: # added - error
-#     neptune_client = None
 
 # CLI configuration
 parser = argparse.ArgumentParser()

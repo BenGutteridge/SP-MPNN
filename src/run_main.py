@@ -150,7 +150,7 @@ parser.add_argument(
 my_args = [
     "-d QM9",
     # "-m DeLite-SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
-    "-m Delay-SP_RSUM_WEIGHT",
+    "-m DRew_RSUM_WEIGHT",
     # '-m GCN',
     # '-m GIN',#_RSUM_WEIGHT',
     # "-m SP_RSUM_WEIGHT",
@@ -172,7 +172,6 @@ my_args = [
     
 ]
 my_args = ' '.join(my_args)
-####
 args = parser.parse_args(my_args.split())
 if args.nu == '-1':
     args.nu = float('inf')
