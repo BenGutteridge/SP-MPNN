@@ -4,7 +4,7 @@ from torch.nn import ModuleList, Linear, Embedding
 from torch_scatter import scatter_max, scatter_mean, scatter_sum
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from models.layers.hsp_gin_layer import instantiate_mlp
-from models.layers import DeLite_GIN_HSP_Layer, Delay_GIN_HSP_Layer
+from models.layers import Share_DRew_GIN_Layer, DRew_GIN_Layer
 
 from .hsp_gin import dirichlet, get_laplacian
 import numpy as np
@@ -14,10 +14,10 @@ GRAPH_CLASS = "gc"
 GRAPH_REG = "gr"
 
 
-class NetHSP_Delay_GIN(torch.nn.Module):
+class Net_DRew_GIN(torch.nn.Module):
     def __init__(
         self,
-        rbar,
+        nu,
         num_features,
         num_classes,
         emb_sizes=None,
@@ -37,9 +37,9 @@ class NetHSP_Delay_GIN(torch.nn.Module):
         dataset=None,
         learnable_emb=False,
         use_feat=False,
-        use_lite_model=False,
+        use_weight_share=False,
     ):
-        super(NetHSP_Delay_GIN, self).__init__()
+        super(Net_DRew_GIN, self).__init__()
         if emb_sizes is None:  # Python default handling for mutable input
             emb_sizes = [64, 64, 64]  # The 0th entry is the input feature size.
         self.num_features = num_features
@@ -63,10 +63,10 @@ class NetHSP_Delay_GIN(torch.nn.Module):
         self.residual_freq = residual_frequency
         self.learnable_emb = learnable_emb
 
-        if use_lite_model:
-            delay_layer = DeLite_GIN_HSP_Layer
+        if use_weight_share:
+            delay_layer = Share_DRew_GIN_Layer
         else:
-            delay_layer = Delay_GIN_HSP_Layer
+            delay_layer = DRew_GIN_Layer
 
         additional_kwargs = {"edgesum_relu": True}
         if self.ogb_gc is not None:  # This needs dedicated encoders
@@ -145,7 +145,7 @@ class NetHSP_Delay_GIN(torch.nn.Module):
         for t in range(self.num_layers):
             hsp_layer = delay_layer(
                 t=t,
-                rbar=rbar,
+                nu=nu,
                 in_channels=emb_sizes[t],
                 out_channels=emb_sizes[t + 1],
                 eps=self.eps,

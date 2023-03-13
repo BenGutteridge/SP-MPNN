@@ -5,7 +5,7 @@ model="SP_RSUM_WEIGHT" # other options Delay-SP_RSUM_WEIGHT, DeLite-SP_RSUM_WEIG
 L=8
 k=10
 d=128 # hidden dim, default in paper
-rbar=1
+nu=1
 task="-1"
 repeat=5
 bs=128
@@ -44,8 +44,8 @@ case $key in
     shift # past argument
     shift # past value
     ;;
-    --rbar)
-    rbar="$2"
+    --nu)
+    nu="$2"
     shift # past argument
     shift # past value
     ;;
@@ -77,7 +77,7 @@ case $key in
 esac
 done
 
-echo "model: $model, repeat: $repeat, L: $L, k: $k, rbar: $rbar, task: $task, bs: $bs, epochs: $epochs, use_neptune: $use_neptune, neptune_name: $neptune_name" 
+echo "model: $model, repeat: $repeat, L: $L, k: $k, nu: $nu, task: $task, bs: $bs, epochs: $epochs, use_neptune: $use_neptune, neptune_name: $neptune_name" 
 
 # Pass arguments to another script
-python main.py -d QM9 -m "$model" --emb_dim "$d" --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --rbar "$rbar" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"
+python main.py -d QM9 -m "$model" --emb_dim "$d" --nb_reruns "$repeat" --mode gr --max_distance "$k" --num_layers "$L" --specific_task "$task" --nu "$nu" --batch_size "$bs" --epochs "$epochs" --use_neptune "$use_neptune" --neptune_name "$neptune_name"

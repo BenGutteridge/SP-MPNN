@@ -126,8 +126,8 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--rbar",
-    help="rbar",
+    "--nu",
+    help="nu",
     type=int,
     default=1,
 )
@@ -150,12 +150,12 @@ parser.add_argument(
 my_args = [
     "-d QM9",
     # "-m DeLite-SP_RSUM_WEIGHT", # outside and inside aggregations --  outside options are RSUM (R-SPN), ... [TODO: continue] if "[eps]_weight" uses alpha weightings convex comb of k-hops. If some form of sum, does (1+eps) followed by MLP I think
-    "-m Delay-SP_RSUM_WEIGHT",
+    "-m DRew_RSUM_WEIGHT",
     # '-m GCN',
     # '-m GIN',#_RSUM_WEIGHT',
     # "-m SP_RSUM_WEIGHT",
     "--max_distance 10",     # K, I think
-    "--rbar 1",
+    "--nu 1",
     "--num_layers 2",
     "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
@@ -172,10 +172,9 @@ my_args = [
     
 ]
 my_args = ' '.join(my_args)
-####
 args = parser.parse_args(my_args.split())
-if args.rbar == '-1':
-    args.rbar = float('inf')
+if args.nu == '-1':
+    args.nu = float('inf')
 
 # SETTING SEED
 if args.seed > 0: # default is -1
@@ -289,7 +288,7 @@ elif args.mode == "gr":  # Graph Regression, this is QM9
     specific_task = args.specific_task
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('Number of parameters: ', num_params)
-    hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('HSP') else 'rbar=%02d' % args.rbar
+    hop_info_str = 'k=%02d' % args.max_distance if args.model.startswith('HSP') else 'nu=%02d' % args.nu
     run_name = args.dataset + '_' + args.model + '_' + hop_info_str
     if neptune_client:
         neptune_client["num_params"].log(num_params)

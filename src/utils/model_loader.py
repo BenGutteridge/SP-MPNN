@@ -1,4 +1,4 @@
-from models import NetHSP_GIN, NetHSP_Delay_GIN, NetGIN, NetGCN, NetGAT
+from models import NetHSP_GIN, Net_DRew_GIN, NetGIN, NetGCN, NetGAT
 
 
 def get_model(args, device="cpu", num_features=None, num_classes=None):
@@ -87,17 +87,17 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
         ogb_gc = None
 
     # ******************************************************************************************
-    # Delay-R-SPN
-    if model_type == 'delay-sp' or model_type=='delite-sp':
-        if model_type.startswith('delite'):
-            print('Using Delite-R-SPN model')
-            use_lite_model = True
+    # DRew-GIN
+    if model_type == 'drew' or model_type=='share_drew':
+        if model_type.startswith('share'):
+            print('Using DRew-GIN model with weight sharing')
+            use_weight_share = True
         else:
-            use_lite_model = False
-            print('Using Delay-R-SPN model')
+            use_weight_share = False
+            print('Using DRew-GIN model')
 
-        model = NetHSP_Delay_GIN( # generic model with all of their own stuff implemented in it
-            args.rbar,
+        model = Net_DRew_GIN( # generic model with all of their own stuff implemented in it
+            args.nu,
             num_features,
             num_classes,
             emb_sizes=emb_sizes, # list of length n_layers+1 with hidden dims I think
@@ -117,7 +117,7 @@ def get_model(args, device="cpu", num_features=None, num_classes=None):
             dataset=args.dataset,
             learnable_emb=args.learnable_emb,
             use_feat=args.use_feat,
-            use_lite_model=use_lite_model,
+            use_weight_share=use_weight_share,
         ).to(device)
     # ******************************************************************************************
     else:
