@@ -156,15 +156,15 @@ my_args = [
     # "-m SP_RSUM_WEIGHT",
     "--max_distance 10",     # K, I think
     "--nu 1",
-    "--num_layers 2",
+    "--num_layers 8",
     "--specific_task -1",    # index for the regression target (0-12 for QM9) 
     "--mode gr",            # graph regression (QM9 only)
-    "--epochs 3",
+    "--epochs 300",
     "--batch_size 128",
     "--nb_reruns 1",        # number of times to repeat the experiment
     "--use_neptune False",
     "--neptune_name test_run",
-    "--emb_dim 8",
+    "--emb_dim 95",
     "--dropout 0.0",
     "--scatter mean",
     "--seed 0",
